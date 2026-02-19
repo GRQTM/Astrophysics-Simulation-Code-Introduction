@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/starlight": "latest",
+    "@pelagornis/page": "^1.1.1",
     "astro": "latest"
   }
 }

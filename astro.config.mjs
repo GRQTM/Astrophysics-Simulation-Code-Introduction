@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import pagePlugin from '@pelagornis/page';
 
 const owner = process.env.GITHUB_REPOSITORY_OWNER ?? process.env.GITHUB_ACTOR ?? 'your-github-id';
 const repository = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'simulation-primer';
@@ -12,6 +13,7 @@ export default defineConfig({
   base,
   integrations: [
     starlight({
+      plugins: [pagePlugin()],
       title: 'CosmoSim Primer',
       description: 'Beginner-first guide to Arepo, Enzo, Gadget, and Gizmo.',
       defaultLocale: 'en',
