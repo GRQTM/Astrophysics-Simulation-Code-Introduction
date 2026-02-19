@@ -1,0 +1,30 @@
+---
+title: Basics
+description: Core concepts before diving into any simulation code.
+sidebar:
+  order: 1
+---
+
+# Core concepts before touching any codebase
+
+If you understand what is being solved and which numerical trade-offs matter, code documentation becomes easier to read.
+
+## Minimum concept set
+
+- **Hydrodynamics + gravity**: many astrophysical problems require both.
+- **Discretization**: continuous equations become cells or particles.
+- **Resolution**: more detail costs more memory and runtime.
+- **Time integration**: stable timestep control is critical.
+
+## Practical reading order
+
+1. Pick a target problem (galaxy formation, cluster evolution, idealized tests).
+2. Compare method families (mesh, AMR, particle-based).
+3. Check assumptions (boundary conditions, cooling, feedback models).
+
+## Next pages
+
+- [Arepo](/en/codes/arepo/)
+- [Enzo](/en/codes/enzo/)
+- [Gadget](/en/codes/gadget/)
+- [Gizmo](/en/codes/gizmo/)
