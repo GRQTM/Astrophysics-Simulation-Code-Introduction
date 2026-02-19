@@ -1,0 +1,561 @@
+---
+// page 스타일 헤더 구성
+import Search from "@pelagornis/page/overrides/Search.astro";
+import SocialIcons from "@pelagornis/page/overrides/SocialIcons.astro";
+import MobileMenuToggle from "@pelagornis/page/overrides/MobileMenuToggle.astro";
+import LanguageSelect from "/src/components/LanguageSelect.astro";
+import ThemeSelect from "@pelagornis/page/overrides/ThemeSelect.astro";
+import config from "virtual:starlight/user-config";
+import { logos } from "virtual:starlight/user-images";
+
+// locale을 고려한 경로 생성 함수
+function localizedPath(path: string): string {
+  const currentLocale = Astro.locals.starlightRoute?.locale;
+
+  // currentLocale이 없거나 'en'이면 locale 없이 반환
+  if (!currentLocale || currentLocale === config.defaultLocale.locale) {
+    return path;
+  }
+
+  // 다른 locale인 경우 locale을 포함한 경로 반환
+  return `/${currentLocale}${path}`;
+}
+
+// 환경 변수에서 navigation 가져오기
+let navigation: { href: string; label: string }[] | undefined;
+try {
+  const navigationEnv = process.env.PAGE_NAVIGATION;
+  navigation = navigationEnv ? JSON.parse(navigationEnv) : undefined;
+} catch {
+  navigation = undefined;
+}
+
+const { siteTitle, siteTitleHref, sidebar } = Astro.locals.starlightRoute;
+
+// 사이드바가 있는지 확인
+const hasSidebar = sidebar && sidebar.length > 0;
+---
+
+<div class="page-header">
+  <div class="page-header-container">
+    <div class="page-header-left">
+      <!-- page 스타일 사이트 타이틀 -->
+      <a href={siteTitleHref} class="page-site-title">
+        {
+          config.logo && logos.dark && (
+            <>
+              <img
+                class:list={[
+                  { "light:sl-hidden": !("src" in config.logo) },
+                  "logo-size",
+                ]}
+                alt={config.logo.alt}
+                src={logos.dark.src}
+                width={logos.dark.width}
+                height={logos.dark.height}
+              />
+              {/* Show light alternate if a user configure both light and dark logos. */}
+              {!("src" in config.logo) && (
+                <img
+                  class="dark:sl-hidden logo-size"
+                  alt={config.logo.alt}
+                  src={logos.light?.src}
+                  width={logos.light?.width}
+                  height={logos.light?.height}
+                />
+              )}
+            </>
+          )
+        }
+        <span class="page-title-text">{siteTitle}</span>
+      </a>
+
+      <!-- page 스타일 네비게이션 -->
+      {
+        navigation && (
+          <nav class="page-nav">
+            {navigation.map((item: { href: string; label: string }) => (
+              <a href={localizedPath(item.href)} class="page-nav-link">
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        )
+      }
+    </div>
+
+    <div class="page-header-right">
+      <!-- page 스타일 검색 -->
+      <div class="page-search-wrapper">
+        <Search />
+      </div>
+
+      <!-- page 스타일 테마 토글 -->
+      <ThemeSelect />
+
+      <!-- page 스타일 언어 선택 -->
+      <LanguageSelect />
+
+      <!-- page 스타일 소셜 링크 -->
+      <SocialIcons />
+
+      <!-- page 스타일 모바일 메뉴 토글 -->
+      {hasSidebar && <MobileMenuToggle />}
+    </div>
+  </div>
+</div>
+
+<script>
+  // 전역 변수로 이벤트 리스너 참조 저장
+  let isInitialized = false;
+  let themeToggleHandler: (() => void) | null = null;
+  let astroPageLoadHandler: (() => void) | null = null;
+
+  // page 스타일 테마 토글 (ThemeSelect 컴포넌트로 대체됨)
+  function initpageThemeToggle() {
+    // ThemeSelect 컴포넌트가 테마 토글 기능을 제공하므로 여기서는 초기화만 수행
+    // 필요한 경우 여기에 추가 로직을 구현할 수 있습니다
+  }
+
+  // page 스타일 활성 네비게이션
+  function setpageActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll(".page-nav-link");
+
+    navLinks.forEach((link) => {
+      link.classList.remove("active");
+      const href = link.getAttribute("href");
+
+      // 더 정확한 활성 링크 매칭
+      if (href === "/" && currentPath === "/") {
+        link.classList.add("active");
+      } else if (href !== "/" && href && currentPath.startsWith(href)) {
+        link.classList.add("active");
+      }
+    });
+  }
+
+  // 로고 테마 변경
+  function updateLogo() {
+    const logo = document.querySelector(".page-logo") as HTMLImageElement;
+    if (!logo) return;
+
+    const isDark =
+      document.documentElement.getAttribute("data-theme") === "dark";
+    const logoLight = logo.dataset.logoLight;
+    const logoDark = logo.dataset.logoDark;
+
+    if (logoDark && isDark) {
+      logo.src = logoDark;
+    } else if (logoLight && !isDark) {
+      logo.src = logoLight;
+    }
+  }
+
+  // 초기화 함수
+  function initializeHeader() {
+    // 이미 초기화되었다면 중복 실행 방지
+    if (isInitialized) {
+      return;
+    }
+
+    initpageThemeToggle();
+    setpageActiveNavLink();
+    updateLogo();
+
+    // 테마 변경 감지
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "data-theme"
+        ) {
+          updateLogo();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    isInitialized = true;
+  }
+
+  // 정리 함수
+  function cleanup() {
+    const toggleButton = document.getElementById(
+      "page-theme-toggle"
+    ) as HTMLButtonElement;
+
+    if (toggleButton && themeToggleHandler) {
+      toggleButton.removeEventListener("click", themeToggleHandler);
+      themeToggleHandler = null;
+    }
+
+    if (astroPageLoadHandler) {
+      document.removeEventListener("astro:page-load", astroPageLoadHandler);
+      astroPageLoadHandler = null;
+    }
+
+    isInitialized = false;
+  }
+
+  // 초기화
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeHeader);
+  } else {
+    initializeHeader();
+  }
+
+  // Astro 페이지 변경 시에도 실행 (기존 리스너 정리 후)
+  if (!astroPageLoadHandler) {
+    astroPageLoadHandler = () => {
+      cleanup();
+      initializeHeader();
+    };
+    document.addEventListener("astro:page-load", astroPageLoadHandler);
+  }
+
+  // 페이지 언로드 시 정리
+  window.addEventListener("beforeunload", cleanup);
+</script>
+
+<style>
+  /* page 스타일 헤더 */
+  .page-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--page-header-height);
+    background: rgba(255, 255, 255, 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    isolation: isolate;
+    transform: translateZ(0);
+  }
+
+  /* 성능 최적화: backdrop-filter를 조건부로 적용 */
+  @media (min-resolution: 1.5dppx) and (min-width: 768px) {
+    .page-header {
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      -moz-backdrop-filter: blur(30px) saturate(180%);
+      will-change: backdrop-filter;
+    }
+  }
+
+  /* 다크 테마에서 헤더 강제 스타일 */
+  :global([data-theme="dark"]) .page-header {
+    background: rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* 성능 최적화: 다크모드 backdrop-filter를 조건부로 적용 */
+  @media (min-resolution: 1.5dppx) and (min-width: 768px) {
+    :global([data-theme="dark"]) .page-header {
+      backdrop-filter: blur(30px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+      -moz-backdrop-filter: blur(30px) saturate(180%) !important;
+    }
+  }
+
+  /* backdrop-filter를 지원하지 않는 브라우저를 위한 폴백 */
+  @supports not (backdrop-filter: blur(1px)) {
+    .page-header {
+      background: rgba(255, 255, 255, 0.98);
+    }
+
+    :global([data-theme="dark"]) .page-header {
+      background: rgba(0, 0, 0, 0.95);
+    }
+  }
+
+  .page-header-container {
+    max-width: 1440px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--page-space-8);
+  }
+
+  .page-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--page-space-10);
+  }
+
+  .page-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--page-space-3);
+  }
+
+  /* page 스타일 사이트 타이틀 */
+  .page-site-title {
+    display: flex;
+    align-items: center;
+    gap: var(--page-space-3);
+    text-decoration: none;
+    color: var(--page-text);
+    font-weight: 700;
+    font-size: 1.125rem;
+    transition: opacity 0.2s ease;
+  }
+
+  .page-site-title:hover {
+    opacity: 0.7;
+  }
+
+  .page-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--page-radius-sm);
+  }
+
+  /* Starlight logo-size 클래스 스타일 */
+  .logo-size {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--page-radius-sm);
+  }
+
+  .page-title-text {
+    font-family: var(--page-font-family);
+    letter-spacing: -0.02em;
+  }
+
+  /* page 스타일 네비게이션 */
+  .page-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--page-space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--page-space-2) var(--page-space-4);
+    border-radius: var(--page-radius-xl);
+    text-decoration: none;
+    color: var(--page-text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .page-nav-link:hover {
+    color: var(--page-text);
+    background: var(--page-accent-light);
+  }
+
+  .page-nav-link.active {
+    color: var(--page-accent);
+    background: var(--page-accent-light);
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .page-nav-link.active {
+    background: var(--page-accent-light);
+    color: var(--page-accent);
+  }
+
+  /* page 스타일 버튼 */
+  .page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--page-space-3);
+    border: none;
+    border-radius: var(--page-radius);
+    background: var(--page-accent-light);
+    color: var(--page-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .page-btn:hover {
+    background: var(--page-neutral-200);
+    color: var(--page-text);
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .page-btn:hover {
+    background: var(--page-neutral-800);
+  }
+
+  .page-btn-primary {
+    background: var(--page-accent);
+    color: var(--page-bg);
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-btn-primary:hover {
+    background: var(--page-accent-hover);
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .page-btn-primary {
+    background: var(--page-accent) !important;
+    color: var(--page-bg) !important;
+  }
+
+  [data-theme="dark"] .page-btn-primary:hover {
+    background: var(--page-neutral-300) !important;
+    color: var(--page-bg) !important;
+  }
+
+  /* GitHub 버튼 특별 스타일 */
+  [data-theme="dark"] .page-github-btn {
+    background: var(--page-accent) !important;
+    color: var(--page-bg) !important;
+  }
+
+  [data-theme="dark"] .page-github-btn:hover {
+    background: var(--page-neutral-300) !important;
+    color: var(--page-bg) !important;
+  }
+
+  .page-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* page 스타일 테마 토글 */
+  .page-theme-toggle {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--page-radius);
+    background: var(--page-accent-light);
+    color: var(--page-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-theme-toggle:hover {
+    background: var(--page-neutral-200);
+    color: var(--page-text);
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .page-theme-toggle:hover {
+    background: var(--page-neutral-800);
+  }
+
+  .page-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* 본문 여백 */
+  :global(body) {
+    padding-top: var(--page-header-height) !important;
+  }
+
+  /* 모바일 대응 */
+  @media (max-width: 768px) {
+    .page-header-container {
+      padding: 0 var(--page-space-4);
+    }
+
+    .page-header-left {
+      gap: var(--page-space-4);
+    }
+
+    .page-nav {
+      display: none;
+    }
+
+    .page-title-text {
+      display: none;
+    }
+
+    .page-mobile-menu-toggle {
+      display: flex !important;
+    }
+
+    /* 모바일에서 성능 최적화 */
+    .page-header {
+      background: rgba(255, 255, 255, 0.6) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      -moz-backdrop-filter: none !important;
+    }
+
+    :global([data-theme="dark"]) .page-header {
+      background: rgba(0, 0, 0, 0.4) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      -moz-backdrop-filter: none !important;
+    }
+
+    /* 모바일에서 애니메이션 최적화 */
+    .page-btn,
+    .page-theme-toggle,
+    .page-mobile-menu-toggle {
+      transition: none !important;
+      will-change: auto !important;
+    }
+
+    .page-btn:hover,
+    .page-theme-toggle:hover,
+    .page-mobile-menu-toggle:hover {
+      transform: none !important;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .page-mobile-menu-toggle {
+      display: none !important;
+    }
+  }
+
+  /* 매우 작은 화면에서 추가 최적화 */
+  @media (max-width: 480px) {
+    .page-header-container {
+      padding: 0 var(--page-space-3);
+    }
+
+    .page-header-left {
+      gap: var(--page-space-3);
+    }
+
+    .page-site-title {
+      font-size: 1rem;
+    }
+
+    .page-logo {
+      width: 28px;
+      height: 28px;
+    }
+
+    .page-header {
+      background: rgba(255, 255, 255, 0.99) !important;
+    }
+
+    :global([data-theme="dark"]) .page-header {
+      background: rgba(0, 0, 0, 0.98) !important;
+    }
+  }
+</style>

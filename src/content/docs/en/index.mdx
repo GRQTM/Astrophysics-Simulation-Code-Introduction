@@ -6,24 +6,73 @@ sidebar:
   order: 0
 ---
 
-# Start learning astrophysical simulation from zero.
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-This site introduces four widely discussed simulation codes and explains core concepts in a beginner-friendly order.
+<div class="hero-section">
+  <span class="hero-eyebrow">v 0.1 Foundation</span>
+  <h1 class="hero-title">Start learning astrophysical<br/>simulation from zero.</h1>
+  <p class="hero-subtitle">
+    This site introduces four major simulation codes — <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, and <strong>Gizmo</strong> — and explains core concepts in a beginner-friendly order.
+  </p>
+  <div class="hero-actions">
+    <a href="/en/basics/" class="hero-btn hero-btn-primary">Read the Basics</a>
+    <a href="/en/codes/arepo/" class="hero-btn hero-btn-secondary">Start with AREPO →</a>
+  </div>
+</div>
+
+## What you can explore
+
+<CardGrid>
+  <LinkCard
+    title="Simulation Basics"
+    description="What a simulation is, why resolution matters, and how time integration works."
+    href="/en/basics/"
+  />
+  <LinkCard
+    title="Code Pages"
+    description="Arepo, Enzo, Gadget, Gizmo — method summaries, installation, and hands-on guides."
+    href="/en/codes/arepo/"
+  />
+  <LinkCard
+    title="Code Comparison"
+    description="A side-by-side table comparing method family, strengths, and trade-offs."
+    href="/en/compare/"
+  />
+  <LinkCard
+    title="Glossary"
+    description="Consistent terminology across all languages for key simulation concepts."
+    href="/en/glossary/"
+  />
+</CardGrid>
 
 ## Suggested learning path
 
-1. Read [Basics](/en/basics/) first.
-2. Visit each code page: [Arepo](/en/codes/arepo/), [Enzo](/en/codes/enzo/), [Gadget](/en/codes/gadget/), [Gizmo](/en/codes/gizmo/).
-3. Use [Compare](/en/compare/) and [Glossary](/en/glossary/) to build context.
+<div class="learning-path">
+  <div class="path-step">
+    <span class="step-number">1</span>
+    <div class="step-content">
+      <strong>Build foundation</strong>
+      <span>Read <a href="/en/basics/">Basics</a> to understand mesh, particles, and resolution.</span>
+    </div>
+  </div>
+  <div class="path-step">
+    <span class="step-number">2</span>
+    <div class="step-content">
+      <strong>Explore each code</strong>
+      <span>Visit <a href="/en/codes/arepo/">Arepo</a>, <a href="/en/codes/enzo/">Enzo</a>, <a href="/en/codes/gadget/">Gadget</a>, <a href="/en/codes/gizmo/">Gizmo</a> and focus on "When to use".</span>
+    </div>
+  </div>
+  <div class="path-step">
+    <span class="step-number">3</span>
+    <div class="step-content">
+      <strong>Compare and decide</strong>
+      <span>Use <a href="/en/compare/">Compare</a> + <a href="/en/glossary/">Glossary</a> to pick the right tool.</span>
+    </div>
+  </div>
+</div>
 
-## Scope of this foundation release
+## Primary goal
 
-- Locale support now: English and Korean
-- Content policy: English is source-of-truth, Korean follows as translation
-- Accuracy policy: keep technical claims tied to official docs, papers, and version notes
-
-## Quick jump
-
-- [Simulation Basics](/en/basics/)
-- [Code Comparison](/en/compare/)
-- [Glossary](/en/glossary/)
+- Run all hands-on work inside a `conda` virtual environment.
+- First milestone: **compile, run, and validate AREPO `wave_1d`**.
+- [Start here → AREPO hands-on page](/en/codes/arepo/)

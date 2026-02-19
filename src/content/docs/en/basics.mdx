@@ -1,30 +1,52 @@
 ---
 title: Basics
-description: Core concepts before diving into any simulation code.
+description: A practical beginner baseline before running astrophysical simulations.
 sidebar:
   order: 1
 ---
 
-# Core concepts before touching any codebase
+# Basics before touching any simulation code
 
-If you understand what is being solved and which numerical trade-offs matter, code documentation becomes easier to read.
+This page is for absolute beginners who feel lost when they open code docs.
+If you understand the flow and terms below, you can read setup guides with much less friction.
 
-## Minimum concept set
+## What this page helps you do
 
-- **Hydrodynamics + gravity**: many astrophysical problems require both.
-- **Discretization**: continuous equations become cells or particles.
-- **Resolution**: more detail costs more memory and runtime.
-- **Time integration**: stable timestep control is critical.
+- Understand what a simulation run is actually doing.
+- Know which settings matter most for your first run.
+- Avoid common beginner mistakes (wrong units, over-large first run, no validation step).
 
-## Practical reading order
+## Core concepts you must know first
 
-1. Pick a target problem (galaxy formation, cluster evolution, idealized tests).
-2. Compare method families (mesh, AMR, particle-based).
-3. Check assumptions (boundary conditions, cooling, feedback models).
+- **Hydrodynamics + gravity**: Most galaxy/cosmology runs evolve gas dynamics and gravity together.
+- **Discretization**: Continuous equations are represented on mesh cells or particles.
+- **Resolution**: Higher detail increases runtime and memory cost rapidly.
+- **Timestep control**: Stability limits (for example CFL-like constraints) decide how fast you can advance.
+- **Initial conditions**: Bad initial files can make a run fail even when compilation is correct.
+- **Boundary conditions**: Periodic vs isolated boundaries can change behavior significantly.
+- **Subgrid models**: Star formation/feedback/cooling recipes are approximations below resolved scales.
+- **Convergence testing**: A single run is never enough; you need at least a small resolution comparison.
 
-## Next pages
+## Beginner checklist before first serious run
 
-- [Arepo](/en/codes/arepo/)
-- [Enzo](/en/codes/enzo/)
-- [Gadget](/en/codes/gadget/)
-- [Gizmo](/en/codes/gizmo/)
+1. Write one sentence for your goal. Example: "I want to verify that the solver runs and passes the bundled check script." 
+2. Start from the smallest official example, not a full science setup.
+3. Confirm output files are being created where you expect.
+4. Read runtime logs and look for warnings, not only crashes.
+5. Run the provided validation/check script when available.
+6. Change one parameter at a time, then rerun.
+
+## How to read code docs efficiently
+
+1. Read **Getting Started / Running** first.
+2. Read the example directory you will execute.
+3. Read required config/parameter sections only for that example.
+4. Read method papers after your first successful run.
+
+This order reduces context overload and helps you build confidence quickly.
+
+## Suggested path in this site
+
+1. Start with [Arepo](/en/codes/arepo/) and complete one validated example run.
+2. Use [Compare](/en/compare/) to understand method-family trade-offs.
+3. Use [Glossary](/en/glossary/) when terms become unclear.

@@ -1,0 +1,154 @@
+---
+import InstantTableOfContentsList from './InstantTableOfContentsList.astro';
+
+const { toc } = Astro.locals.starlightRoute;
+const items = toc ? toc.items.filter((item) => item.slug !== '_top') : [];
+const minHeadingLevel = toc?.minHeadingLevel ?? 2;
+const maxHeadingLevel = toc?.maxHeadingLevel ?? 3;
+---
+
+{
+  toc &&
+    items.length > 0 && (
+      <instant-starlight-toc data-min-h={minHeadingLevel} data-max-h={maxHeadingLevel}>
+        <nav aria-labelledby="starlight__on-this-page">
+          <h2 id="starlight__on-this-page">{Astro.locals.t('tableOfContents.onThisPage')}</h2>
+          <InstantTableOfContentsList toc={items} />
+        </nav>
+      </instant-starlight-toc>
+    )
+}
+
+<script>
+  class InstantStarlightTOC extends HTMLElement {
+    constructor() {
+      super();
+      this.currentLink = this.querySelector('a[aria-current="true"]');
+      this.minH = parseInt(this.dataset.minH || '2', 10);
+      this.maxH = parseInt(this.dataset.maxH || '3', 10);
+      this.cleanup = null;
+      const levels = Array.from(
+        { length: 1 + this.maxH - this.minH },
+        (_, index) => `h${this.minH + index}`
+      ).join(',');
+      this.tocHeadingSelector = `h1#_top,:where(${levels})[id]`;
+      this.onIdle = (cb) =>
+        (window.requestIdleCallback || ((idleCb) => window.setTimeout(idleCb, 1)))(cb);
+    }
+
+    connectedCallback() {
+      if (this.cleanup) this.cleanup();
+      this.onIdle(() => this.init());
+    }
+
+    disconnectedCallback() {
+      if (this.cleanup) this.cleanup();
+    }
+
+    setCurrent(link) {
+      if (!link || link === this.currentLink) return;
+      if (this.currentLink) this.currentLink.removeAttribute('aria-current');
+      link.setAttribute('aria-current', 'true');
+      this.currentLink = link;
+    }
+
+    getRootMargin() {
+      const navBarHeight = document.querySelector('header')?.getBoundingClientRect().height || 0;
+      const mobileTocHeight = this.querySelector('summary')?.getBoundingClientRect().height || 0;
+
+      // Use the visual center of the readable area (below sticky header/mobile TOC)
+      // as the activation line for the right-side TOC.
+      const height = document.documentElement.clientHeight;
+      const contentTop = navBarHeight + mobileTocHeight + 32;
+      const visibleHeight = Math.max(1, height - contentTop);
+      const center = contentTop + visibleHeight / 2;
+      const bandHalf = 1;
+      const top = Math.max(0, Math.round(center - bandHalf));
+      const bottom = Math.round(center + bandHalf);
+      return `-${top}px 0% ${bottom - height}px`;
+    }
+
+    init() {
+      const links = Array.from(this.querySelectorAll('a[href^="#"]'));
+      if (!links.length) return;
+
+      const isHeading = (el) => el.matches(this.tocHeadingSelector);
+
+      const getElementHeading = (el) => {
+        if (!el) return null;
+        const origin = el;
+
+        while (el) {
+          if (el.matches('.sl-markdown-content, main > *')) {
+            return document.getElementById('_top');
+          }
+          if (isHeading(el)) return el;
+
+          const childHeading = el.querySelector(this.tocHeadingSelector);
+          if (childHeading) return childHeading;
+
+          el = el.previousElementSibling;
+          while (el?.lastElementChild) el = el.lastElementChild;
+          const siblingHeading = getElementHeading(el);
+          if (siblingHeading) return siblingHeading;
+        }
+
+        return getElementHeading(origin.parentElement);
+      };
+
+      const setCurrent = (entries) => {
+        for (const { isIntersecting, target } of entries) {
+          if (!isIntersecting) continue;
+          const heading = getElementHeading(target);
+          if (!heading) continue;
+          const link = links.find((candidate) => {
+            return candidate.hash === `#${encodeURIComponent(heading.id)}`;
+          });
+          if (link) {
+            this.setCurrent(link);
+            break;
+          }
+        }
+      };
+
+      const toObserve = document.querySelectorAll(
+        [
+          `main :where(${this.tocHeadingSelector})`,
+          `main :where(${this.tocHeadingSelector}, .sl-heading-wrapper) ~ *:not(:has(${this.tocHeadingSelector}))`,
+          `main .sl-markdown-content > *:not(:has(${this.tocHeadingSelector}))`,
+          `main > *:not(:has(${this.tocHeadingSelector}))`,
+        ].join(',')
+      );
+
+      let observer;
+      const observe = () => {
+        if (observer) return;
+        observer = new IntersectionObserver(setCurrent, { rootMargin: this.getRootMargin() });
+        toObserve.forEach((el) => observer.observe(el));
+      };
+      observe();
+
+      let timeout;
+      const handleResize = () => {
+        if (observer) {
+          observer.disconnect();
+          observer = undefined;
+        }
+        window.clearTimeout(timeout);
+        timeout = window.setTimeout(() => this.onIdle(observe), 200);
+      };
+
+      window.addEventListener('resize', handleResize);
+      this.cleanup = () => {
+        window.removeEventListener('resize', handleResize);
+        window.clearTimeout(timeout);
+        if (observer) observer.disconnect();
+        observer = undefined;
+      };
+    }
+  }
+
+  if (!customElements.get('instant-starlight-toc')) {
+    customElements.define('instant-starlight-toc', InstantStarlightTOC);
+  }
+</script>

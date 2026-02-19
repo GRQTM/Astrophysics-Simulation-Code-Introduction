@@ -15,7 +15,17 @@ export default defineConfig({
     starlight({
       plugins: [pagePlugin()],
       title: 'CosmoSim Primer',
+      logo: {
+        src: './src/assets/galaxy.svg',
+      },
       description: 'Beginner-first guide to Arepo, Enzo, Gadget, and Gizmo.',
+      pagination: false,
+      components: {
+        Header: '/src/components/PageHeader.astro',
+        TableOfContents: '/src/components/InstantTableOfContents.astro',
+        Footer: '/src/components/EmptyFooter.astro',
+        LanguageSelect: '/src/components/LanguageSelect.astro'
+      },
       defaultLocale: 'en',
       locales: {
         en: {
@@ -27,13 +37,7 @@ export default defineConfig({
           lang: 'ko'
         }
       },
-      customCss: ['./src/styles/custom.css'],
-      sidebar: [
-        {
-          label: 'Foundations',
-          autogenerate: { directory: '.' }
-        }
-      ]
+      customCss: ['./src/styles/custom.css']
     })
   ]
 });

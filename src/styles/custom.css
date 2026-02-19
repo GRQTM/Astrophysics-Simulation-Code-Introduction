@@ -4,8 +4,739 @@
 :root {
   --font-sans: 'Space Grotesk', 'Noto Sans KR', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+  --sidebar-accent-rgb: 41, 96, 255;
+  --sidebar-accent: rgb(var(--sidebar-accent-rgb));
+  --sidebar-top-offset: 2rem;
+  --page-sidebar-width: 220px;
+  --page-toc-width: 320px;
+  --page-content-gap: var(--page-space-10);
+  --page-toc-right-margin: 4px;
+  --page-toc-top-position: 88px;
+  --page-toc-height: calc(100vh - 104px);
+  --page-sidebar-floating-top: 46%;
+  --page-sidebar-floating-height: min(72vh, 760px);
 
   --sl-font: var(--font-sans);
   --sl-font-system: var(--font-sans);
   --sl-font-mono: var(--font-mono);
+}
+
+/* Layout vars:
+   `@pelagornis/page` redefines some `:root` vars inside component CSS.
+   Bind them on the actual container to reliably win the cascade. */
+html body .page-main-container {
+  --page-sidebar-width: 220px !important;
+  --page-toc-width: 320px !important;
+  --page-content-gap: var(--page-space-10) !important;
+  --page-toc-right-margin: 4px !important;
+  --page-toc-top-position: 88px !important;
+  --page-toc-height: calc(100vh - 104px) !important;
+}
+
+/* Keep sidebar visible without overriding core layout/positioning logic. */
+html body .page-main-container .page-sidebar-nav,
+html body .page-main-container .page-sidebar,
+html body .page-main-container .page-sidebar-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Sidebar redesign: card surface + cleaner grouping + stronger active state. */
+.page-sidebar-nav {
+  padding: 0.9rem !important;
+}
+
+.page-sidebar {
+  border: 0 !important;
+  border-radius: 1rem !important;
+  background:
+    linear-gradient(180deg, rgba(var(--sidebar-accent-rgb), 0.08) 0%, rgba(var(--sidebar-accent-rgb), 0) 34%),
+    var(--page-bg-elevated) !important;
+  box-shadow: 0 12px 34px -24px rgba(18, 24, 38, 0.45);
+  padding: 0.5rem !important;
+}
+
+.page-sidebar-container {
+  gap: 0.5rem !important;
+}
+
+.page-sidebar-group {
+  margin: 0.1rem 0 0.55rem !important;
+  gap: 0.24rem !important;
+}
+
+.page-sidebar-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.42rem 0.75rem !important;
+  margin: 0 !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: var(--page-text-muted) !important;
+}
+
+.page-sidebar-group-title::after {
+  content: '';
+  display: block;
+  flex: 1;
+  height: 1px;
+  background: var(--page-border-light);
+}
+
+.page-sidebar-link {
+  border: 1px solid transparent;
+  border-radius: 0.72rem !important;
+  padding: 0.56rem 0.8rem !important;
+  min-height: 2.25rem !important;
+  color: var(--page-text-secondary) !important;
+  font-size: 0.94rem !important;
+  font-weight: 560 !important;
+  letter-spacing: -0.005em;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease !important;
+}
+
+.page-sidebar-link:hover {
+  color: var(--page-text) !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.08) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.24) !important;
+  transform: translateX(2px);
+}
+
+.page-sidebar-link[aria-current='page'] {
+  color: var(--sidebar-accent) !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.14) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.34) !important;
+  font-weight: 660 !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--sidebar-accent-rgb), 0.12);
+}
+
+.page-sidebar-link[aria-current='page']::before {
+  left: 7px !important;
+  top: 7px !important;
+  bottom: 7px !important;
+  width: 3px !important;
+  border-radius: 999px !important;
+  background: var(--sidebar-accent) !important;
+}
+
+[data-theme='dark'] .page-sidebar {
+  border: 0 !important;
+  background:
+    linear-gradient(180deg, rgba(var(--sidebar-accent-rgb), 0.2) 0%, rgba(var(--sidebar-accent-rgb), 0) 40%),
+    var(--page-bg-elevated) !important;
+  box-shadow: 0 14px 32px -24px rgba(0, 0, 0, 0.95);
+}
+
+[data-theme='dark'] .page-sidebar-group-title {
+  color: var(--page-text-muted) !important;
+}
+
+[data-theme='dark'] .page-sidebar-link {
+  color: #d9deea !important;
+}
+
+[data-theme='dark'] .page-sidebar-link:hover {
+  color: #ffffff !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.2) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.42) !important;
+}
+
+[data-theme='dark'] .page-sidebar-link[aria-current='page'] {
+  color: #ffffff !important;
+  background: linear-gradient(90deg,
+      rgba(var(--sidebar-accent-rgb), 0.36) 0%,
+      rgba(var(--sidebar-accent-rgb), 0.17) 100%) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.58) !important;
+}
+
+@media (max-width: 768px) {
+  .page-sidebar-nav {
+    padding: 0 !important;
+  }
+
+  .page-sidebar {
+    border-radius: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0.3rem !important;
+  }
+}
+
+/* Remove duplicated top heading line in markdown pages that already have page titles. */
+.page-content .sl-markdown-content>.sl-heading-wrapper.level-h1:first-child {
+  display: none;
+}
+
+/* Keep article readable and wide without overriding TOC/anchor mechanics. */
+.page-content-panel,
+.page-content .sl-markdown-content {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Desktop layout tuning:
+   - Narrower right TOC to give more room to main content
+   - Left sidebar as a shorter floating panel, slightly above center */
+@media (min-width: 1280px) {
+  html body .page-main-container .page-content-wrapper {
+    margin-right: 1.5rem !important;
+  }
+
+  html body .page-main-container .page-toc-sidebar {
+    width: var(--page-toc-width) !important;
+    right: var(--page-toc-right-margin) !important;
+  }
+
+  html body .page-main-container .page-sidebar-nav {
+    top: var(--page-sidebar-floating-top) !important;
+    transform: translateY(-50%) !important;
+    height: var(--page-sidebar-floating-height) !important;
+    max-height: var(--page-sidebar-floating-height) !important;
+    overflow-y: auto !important;
+    padding: 0.65rem !important;
+  }
+}
+
+/* Give h3 subsections extra breathing room after h2 sections (e.g., Installation -> 0) Install Conda). */
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h2+.sl-heading-wrapper.level-h3 {
+  margin-top: 1.6rem !important;
+}
+
+/* Tabs redesign: make OS choices feel clearly selectable and less flat. */
+starlight-tabs .tablist-wrapper {
+  border: 1px solid var(--page-border-light) !important;
+  border-radius: 0.95rem !important;
+  background: linear-gradient(180deg, rgba(var(--sidebar-accent-rgb), 0.08) 0%, rgba(var(--sidebar-accent-rgb), 0.02) 100%) !important;
+  padding: 0.4rem !important;
+  margin: 0.95rem 0 1rem !important;
+}
+
+starlight-tabs [role='tablist'] {
+  border-bottom: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.42rem !important;
+}
+
+starlight-tabs .tab {
+  margin: 0 !important;
+}
+
+starlight-tabs .tab>[role='tab'] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem;
+  padding: 0.58rem 1rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 0.72rem !important;
+  background: transparent !important;
+  color: var(--page-text-secondary) !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease !important;
+}
+
+starlight-tabs .tab>[role='tab']::before {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.28;
+  flex-shrink: 0;
+}
+
+starlight-tabs .tab>[role='tab']:hover {
+  color: var(--page-text) !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.08) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.24) !important;
+  transform: translateY(-1px);
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+starlight-tabs .tab>[role='tab'][aria-selected='true'] {
+  color: var(--sidebar-accent) !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.16) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.36) !important;
+  box-shadow: 0 6px 18px -14px rgba(16, 24, 40, 0.55) !important;
+  text-decoration: none !important;
+}
+
+starlight-tabs .tab>[role='tab'][aria-selected='true']::before {
+  opacity: 0.85;
+}
+
+starlight-tabs .tablist-wrapper~[role='tabpanel'] {
+  margin-top: 0.95rem !important;
+  border-top: 0 !important;
+}
+
+[data-theme='dark'] starlight-tabs .tablist-wrapper {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme='dark'] starlight-tabs .tab>[role='tab'] {
+  color: #b0bdd0 !important;
+}
+
+[data-theme='dark'] starlight-tabs .tab>[role='tab']:hover {
+  color: #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme='dark'] starlight-tabs .tab>[role='tab'][aria-selected='true'] {
+  color: #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+}
+
+/* Remove residual in-content footer/pagination box. */
+html body .page-footer-wrapper,
+html body .pagination-links {
+  display: none !important;
+}
+
+/* Right TOC active link styling (blue highlight). */
+html body .page-main-container .page-toc-sticky instant-starlight-toc a[aria-current='true'] {
+  color: var(--sidebar-accent) !important;
+  font-weight: 650 !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.14) !important;
+  border-radius: 0.45rem !important;
+}
+
+[data-theme='dark'] .page-main-container .page-toc-sticky instant-starlight-toc a[aria-current='true'] {
+  color: #ffffff !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.32) !important;
+}
+
+/* TOC polish: hide Overview row and restore blue active state. */
+html body .page-main-container .page-toc-sticky .sl-toc a[href='#_top'],
+html body .page-main-container mobile-starlight-toc a[href='#_top'] {
+  display: none !important;
+}
+
+html body .page-main-container .page-toc-sticky .sl-toc li:has(> a[href='#_top']),
+html body .page-main-container mobile-starlight-toc li:has(> a[href='#_top']) {
+  display: none !important;
+}
+
+html body .page-main-container .page-toc-sticky .sl-toc a[aria-current='true'],
+html body .page-main-container mobile-starlight-toc a[aria-current='true'] {
+  color: var(--sidebar-accent) !important;
+  font-weight: 650 !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.12) !important;
+  border-radius: 0.45rem !important;
+}
+
+[data-theme='dark'] .page-main-container .page-toc-sticky .sl-toc a[aria-current='true'],
+[data-theme='dark'] .page-main-container mobile-starlight-toc a[aria-current='true'] {
+  color: #ffffff !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.32) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SITE-WIDE DESIGN IMPROVEMENTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────
+   1. HEADER BAR — Frosted-glass effect
+   ─────────────────────────────────────── */
+.page-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(18px) !important;
+  backdrop-filter: saturate(180%) blur(18px) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+[data-theme='dark'] .page-header {
+  background: rgba(13, 17, 28, 0.78) !important;
+  border-bottom: 1px solid rgba(41, 96, 255, 0.15) !important;
+}
+
+/* ───────────────────────────────────────
+   2. TYPOGRAPHY — Tighter headings & gradient underlines
+   ─────────────────────────────────────── */
+.page-content .sl-markdown-content h1,
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h1 h1 {
+  letter-spacing: -0.035em !important;
+  font-weight: 750 !important;
+}
+
+.page-content .sl-markdown-content h2,
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h2 h2 {
+  letter-spacing: -0.025em !important;
+  font-weight: 720 !important;
+}
+
+.page-content .sl-markdown-content h3 {
+  letter-spacing: -0.015em !important;
+  font-weight: 660 !important;
+}
+
+/* H2 underline decoration → gradient accent */
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h2::after {
+  background: linear-gradient(90deg, var(--sidebar-accent), rgba(var(--sidebar-accent-rgb), 0)) !important;
+  height: 2.5px !important;
+  border-radius: 2px !important;
+}
+
+[data-theme='dark'] .page-content .sl-markdown-content .sl-heading-wrapper.level-h2::after {
+  background: linear-gradient(90deg, rgba(41, 96, 255, 0.7), rgba(139, 92, 246, 0.3), transparent) !important;
+}
+
+/* ───────────────────────────────────────
+   3. INLINE CODE — Better contrast & styling
+   ─────────────────────────────────────── */
+.page-content .sl-markdown-content :not(pre)>code {
+  background: #eef2f7 !important;
+  color: #1e3a5f !important;
+  border: 1px solid #d8e0ec !important;
+  border-radius: 0.35rem !important;
+  padding: 0.14em 0.42em !important;
+  font-size: 0.86em !important;
+  font-weight: 500 !important;
+  font-family: var(--font-mono) !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+
+[data-theme='dark'] .page-content .sl-markdown-content :not(pre)>code {
+  background: rgba(41, 96, 255, 0.1) !important;
+  color: #93c5fd !important;
+  border-color: rgba(41, 96, 255, 0.22) !important;
+}
+
+/* ───────────────────────────────────────
+   4. CODE BLOCKS (Expressive Code)
+   Light → Clean Light  |  Dark → Neon Accent
+   ─────────────────────────────────────── */
+
+/* Shared base */
+.expressive-code {
+  margin: 1.4rem 0 !important;
+}
+
+.expressive-code figure.frame {
+  border-radius: 0.85rem !important;
+  overflow: hidden !important;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+
+.expressive-code figure.frame figcaption.header {
+  padding: 0.55rem 1rem !important;
+  font-size: 0.76rem !important;
+}
+
+.expressive-code figure.frame pre {
+  padding: 1.1rem 1.3rem !important;
+  font-size: 0.83rem !important;
+  line-height: 1.75 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.expressive-code .copy button {
+  border-radius: 0.35rem !important;
+  transition: all 0.15s ease !important;
+}
+
+/* ── Light mode: Clean Light ── */
+:root:not([data-theme='dark']) .expressive-code figure.frame,
+html:not([data-theme='dark']) .expressive-code figure.frame {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 8px 24px -12px rgba(0, 0, 0, 0.08) !important;
+}
+
+:root:not([data-theme='dark']) .expressive-code figure.frame:hover,
+html:not([data-theme='dark']) .expressive-code figure.frame:hover {
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    0 12px 32px -12px rgba(0, 0, 0, 0.13) !important;
+}
+
+:root:not([data-theme='dark']) .expressive-code figure.frame figcaption.header,
+html:not([data-theme='dark']) .expressive-code figure.frame figcaption.header {
+  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+:root:not([data-theme='dark']) .expressive-code .header span.title,
+html:not([data-theme='dark']) .expressive-code .header span.title {
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+}
+
+:root:not([data-theme='dark']) .expressive-code figure.frame pre,
+html:not([data-theme='dark']) .expressive-code figure.frame pre {
+  background: #f8fafc !important;
+}
+
+:root:not([data-theme='dark']) .expressive-code .copy button,
+html:not([data-theme='dark']) .expressive-code .copy button {
+  color: var(--sidebar-accent) !important;
+  border: 1px solid rgba(var(--sidebar-accent-rgb), 0.2) !important;
+  background: rgba(var(--sidebar-accent-rgb), 0.05) !important;
+}
+
+:root:not([data-theme='dark']) .expressive-code .copy button:hover,
+html:not([data-theme='dark']) .expressive-code .copy button:hover {
+  background: rgba(var(--sidebar-accent-rgb), 0.12) !important;
+  border-color: rgba(var(--sidebar-accent-rgb), 0.35) !important;
+}
+
+/* ── Dark mode: Neon Accent ── */
+[data-theme='dark'] .expressive-code figure.frame {
+  background: #0c1020 !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 4px 24px -8px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme='dark'] .expressive-code figure.frame:hover {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme='dark'] .expressive-code figure.frame figcaption.header {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme='dark'] .expressive-code .header span.title {
+  color: #8899b0 !important;
+  font-weight: 500 !important;
+}
+
+[data-theme='dark'] .expressive-code figure.frame pre {
+  background: #0c1020 !important;
+  color: #c0cde0 !important;
+}
+
+[data-theme='dark'] .expressive-code .copy button {
+  color: #8899b0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme='dark'] .expressive-code .copy button:hover {
+  color: #c0cde0 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* ───────────────────────────────────────
+   5. RIGHT TOC CARD — Dark mode depth
+   ─────────────────────────────────────── */
+[data-theme='dark'] .page-toc-sticky {
+  border: 1px solid rgba(41, 96, 255, 0.12) !important;
+  border-radius: 1rem !important;
+  background: linear-gradient(180deg,
+      rgba(41, 96, 255, 0.06) 0%,
+      rgba(13, 17, 28, 0) 40%) !important;
+}
+
+/* ───────────────────────────────────────
+   6. LIST SPACING — Better readability
+   ─────────────────────────────────────── */
+.page-content .sl-markdown-content ul>li,
+.page-content .sl-markdown-content ol>li {
+  margin-bottom: 0.35rem !important;
+  line-height: 1.72 !important;
+}
+
+.page-content .sl-markdown-content ul>li:last-child,
+.page-content .sl-markdown-content ol>li:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HOMEPAGE — Hero + Learning Path
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Hide Starlight's auto-generated page title on pages with our custom hero ── */
+/* Starlight renders the page title as <h1 id="_top"> (PAGE_TITLE_ID = '_top') */
+/* h1#_top is a sibling of .sl-markdown-content, both are children of <article> */
+article:has(.hero-section) h1#_top,
+main:has(.hero-section) h1#_top {
+  display: none !important;
+}
+
+/* ── Hero section ── */
+.hero-section {
+  text-align: center;
+  padding: 0.5rem 0 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sidebar-accent);
+  background: rgba(var(--sidebar-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--sidebar-accent-rgb), 0.2);
+  border-radius: 999px;
+  padding: 0.3em 1em;
+  margin-bottom: 1.2rem;
+}
+
+.hero-title {
+  font-size: clamp(1.8rem, 4.5vw, 2.8rem) !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.2 !important;
+  margin-bottom: 1rem !important;
+  background: linear-gradient(135deg, var(--page-text) 0%, var(--sidebar-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme='dark'] .hero-title {
+  background: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 60%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: var(--page-text-secondary);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1.6rem;
+  border-radius: 0.72rem;
+  font-weight: 620;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.hero-btn-primary {
+  background: var(--sidebar-accent);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px -4px rgba(var(--sidebar-accent-rgb), 0.4);
+}
+
+.hero-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px -4px rgba(var(--sidebar-accent-rgb), 0.5);
+}
+
+.hero-btn-secondary {
+  background: rgba(var(--sidebar-accent-rgb), 0.08);
+  color: var(--sidebar-accent) !important;
+  border: 1px solid rgba(var(--sidebar-accent-rgb), 0.2);
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(var(--sidebar-accent-rgb), 0.14);
+  transform: translateY(-2px);
+}
+
+[data-theme='dark'] .hero-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #93c5fd !important;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='dark'] .hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Learning path steps ── */
+.learning-path {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.path-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 0.72rem;
+  border: 1px solid var(--page-border-light);
+  background: var(--page-bg-elevated);
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.path-step:hover {
+  border-color: rgba(var(--sidebar-accent-rgb), 0.3);
+  transform: translateX(3px);
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: rgba(var(--sidebar-accent-rgb), 0.12);
+  color: var(--sidebar-accent);
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.step-content strong {
+  font-size: 0.95rem;
+}
+
+.step-content span {
+  font-size: 0.9rem;
+  color: var(--page-text-secondary);
+  line-height: 1.55;
+}
+
+[data-theme='dark'] .path-step {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .path-step:hover {
+  border-color: rgba(255, 255, 255, 0.14);
 }
