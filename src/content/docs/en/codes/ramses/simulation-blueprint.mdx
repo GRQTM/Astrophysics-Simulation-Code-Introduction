@@ -1,0 +1,31 @@
+---
+title: Simulation Blueprint
+description: Blueprint for a scalable RAMSES simulation setup.
+sidebar:
+  label: Simulation Blueprint
+  order: 3
+---
+
+## Science-first planning
+
+- Define physical scales that drive AMR requirements.
+- Map desired observables to specific outputs/diagnostics.
+- Set acceptable numerical tolerances for each observable.
+
+## AMR and module strategy
+
+- Choose refinement criteria aligned with the science goal.
+- Set refinement caps from memory and walltime constraints.
+- Add advanced modules (RT/MHD/etc.) after baseline validation.
+
+## IC and output policy
+
+- Version-control IC generation and metadata.
+- Separate heavy snapshots from frequent lightweight diagnostics.
+- Plan restart cadence for long walltime campaigns.
+
+## Readiness checklist
+
+- Pilot run completed and analyzed.
+- Restart tested under scheduler conditions.
+- Storage and archival plan approved before production.

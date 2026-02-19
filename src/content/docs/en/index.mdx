@@ -12,11 +12,11 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
   <span class="hero-eyebrow">v 0.1 Foundation</span>
   <h1 class="hero-title">Start learning astrophysical<br/>simulation from zero.</h1>
   <p class="hero-subtitle">
-    This site introduces four major simulation codes — <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, and <strong>Gizmo</strong> — and explains core concepts in a beginner-friendly order.
+    This site introduces five major simulation codes — <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, <strong>Gizmo</strong>, and <strong>Ramses</strong> — in a beginner-friendly workflow.
   </p>
   <div class="hero-actions">
     <a href="/en/basics/" class="hero-btn hero-btn-primary">Read the Basics</a>
-    <a href="/en/codes/arepo/" class="hero-btn hero-btn-secondary">Start with AREPO →</a>
+    <a href="/en/codes/arepo/quickstart/" class="hero-btn hero-btn-secondary">Start with Arepo Quickstart →</a>
   </div>
 </div>
 
@@ -25,22 +25,22 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 <CardGrid>
   <LinkCard
     title="Simulation Basics"
-    description="What a simulation is, why resolution matters, and how time integration works."
+    description="Understand mesh, particles, resolution, and time stepping before running codes."
     href="/en/basics/"
   />
   <LinkCard
-    title="Code Pages"
-    description="Arepo, Enzo, Gadget, Gizmo — method summaries, installation, and hands-on guides."
+    title="Code Guides"
+    description="Each code has four chapters: Overview, Quickstart, Simulation Blueprint, and Production Run."
     href="/en/codes/arepo/"
   />
   <LinkCard
     title="Code Comparison"
-    description="A side-by-side table comparing method family, strengths, and trade-offs."
+    description="Compare method family, strengths, and caveats side by side."
     href="/en/compare/"
   />
   <LinkCard
     title="Glossary"
-    description="Consistent terminology across all languages for key simulation concepts."
+    description="Unified terminology for key simulation concepts."
     href="/en/glossary/"
   />
 </CardGrid>
@@ -52,27 +52,27 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
     <span class="step-number">1</span>
     <div class="step-content">
       <strong>Build foundation</strong>
-      <span>Read <a href="/en/basics/">Basics</a> to understand mesh, particles, and resolution.</span>
+      <span>Read <a href="/en/basics/">Basics</a> first to align core concepts.</span>
     </div>
   </div>
   <div class="path-step">
     <span class="step-number">2</span>
     <div class="step-content">
-      <strong>Explore each code</strong>
-      <span>Visit <a href="/en/codes/arepo/">Arepo</a>, <a href="/en/codes/enzo/">Enzo</a>, <a href="/en/codes/gadget/">Gadget</a>, <a href="/en/codes/gizmo/">Gizmo</a> and focus on "When to use".</span>
+      <strong>Run quickstarts</strong>
+      <span>Use <a href="/en/codes/arepo/quickstart/">Arepo</a>, <a href="/en/codes/enzo/quickstart/">Enzo</a>, <a href="/en/codes/gadget/quickstart/">Gadget</a>, <a href="/en/codes/gizmo/quickstart/">Gizmo</a>, and <a href="/en/codes/ramses/quickstart/">Ramses</a> to execute first examples.</span>
     </div>
   </div>
   <div class="path-step">
     <span class="step-number">3</span>
     <div class="step-content">
-      <strong>Compare and decide</strong>
-      <span>Use <a href="/en/compare/">Compare</a> + <a href="/en/glossary/">Glossary</a> to pick the right tool.</span>
+      <strong>Design and scale up</strong>
+      <span>Move from <a href="/en/compare/">Compare</a> to each code's Blueprint and Production Run chapters.</span>
     </div>
   </div>
 </div>
 
 ## Primary goal
 
-- Run all hands-on work inside a `conda` virtual environment.
-- First milestone: **compile, run, and validate AREPO `wave_1d`**.
-- [Start here → AREPO hands-on page](/en/codes/arepo/)
+- Run all examples inside a `conda` virtual environment.
+- Complete at least one code from **Quickstart → Production Run**.
+- Recommended first path: [Arepo Quickstart](/en/codes/arepo/quickstart/).

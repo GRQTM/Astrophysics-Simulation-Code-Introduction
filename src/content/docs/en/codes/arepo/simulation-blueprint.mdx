@@ -1,0 +1,37 @@
+---
+title: Simulation Blueprint
+description: Plan an AREPO simulation before production launch.
+sidebar:
+  label: Simulation Blueprint
+  order: 3
+---
+
+## Problem definition
+
+- Write a one-sentence scientific objective.
+- Define measurable diagnostics tied to that objective.
+- Set success criteria before spending compute budget.
+
+## Physics and modules
+
+- Start from minimal gravity + hydro.
+- Add modules (cooling, MHD, RT, feedback) one at a time.
+- Track each module change in a run manifest.
+
+## Domain and resolution
+
+- Choose box/domain size from target physical scales.
+- Set mass/spatial resolution based on required observables.
+- Plan at least one lower-resolution pilot for convergence checks.
+
+## Initial conditions and outputs
+
+- Version initial condition files and generation scripts.
+- Define snapshot cadence and lightweight diagnostic cadence separately.
+- Reserve enough storage for snapshots + logs + restart files.
+
+## Pre-production checklist
+
+- Parameters reviewed by at least one collaborator.
+- Test run completed and restart tested.
+- Walltime and node count estimated from pilot profiling.

@@ -1,0 +1,36 @@
+---
+title: Quickstart
+description: Compile Gizmo and execute a first hydro test.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- Build a functional GIZMO executable.
+- Run one bundled hydro example in MFM/MFV mode.
+- Confirm stable completion and valid outputs.
+
+## Installation
+
+1. Install compiler, MPI, and math/I/O dependencies required by your build mode.
+2. Clone the public source and inspect build documentation.
+3. Select a minimal `Config.sh` for a first hydro test.
+4. Compile and verify executable creation.
+
+## Example run used here
+
+```bash
+git clone https://github.com/pfhopkins/gizmo-public.git
+cd gizmo-public
+cp <example-config> ./Config.sh
+make -j8
+mpirun -np 4 ./GIZMO <example-parameter-file>
+```
+
+## Validate quickly
+
+- Confirm run log progression without instability flags.
+- Check generated snapshots/diagnostics are readable.
+- Compare one profile with known test-case behavior.

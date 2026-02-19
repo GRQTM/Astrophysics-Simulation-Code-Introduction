@@ -1,0 +1,40 @@
+---
+title: Production Run
+description: AREPO 본실행 운영 체크리스트.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. 본실행 설정 고정
+
+- `Config.sh`와 런타임 파라미터 파일을 최종 고정합니다.
+- 사용한 소스 리비전 정보를 함께 기록합니다.
+- 본실행 전용 실행 파일을 빌드합니다.
+
+## 2. 데이터/작업 디렉토리 준비
+
+```bash
+mkdir -p /scratch/<project>/arepo-prod/{ic,output,logs,restart}
+cp <ic-file> /scratch/<project>/arepo-prod/ic/
+```
+
+## 3. 스케줄러 실행
+
+```bash
+#!/bin/bash
+#SBATCH -J arepo_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/arepo-prod
+srun /path/to/Arepo params_prod.txt
+```
+
+## 4. 운영/검증
+
+- 초기에 짧은 파일럿으로 자원 사용량을 확인합니다.
+- 체크포인트 및 재시작 동작을 반드시 점검합니다.
+- 핵심 진단량을 기준선 결과와 비교해 품질을 확인합니다.

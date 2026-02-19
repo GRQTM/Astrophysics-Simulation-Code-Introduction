@@ -1,0 +1,40 @@
+---
+title: Production Run
+description: Execute and maintain production RAMSES simulations.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. Freeze production state
+
+- Lock source revision, compile flags, and namelist files.
+- Build and archive one production executable.
+- Store environment/module versions for reproducibility.
+
+## 2. Stage run directories
+
+```bash
+mkdir -p /scratch/<project>/ramses-prod/{ic,output,logs,restart}
+cp <ic-and-namelist-files> /scratch/<project>/ramses-prod/ic/
+```
+
+## 3. Scheduler launch template
+
+```bash
+#!/bin/bash
+#SBATCH -J ramses_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/ramses-prod
+srun <path-to-ramses-binary> <input-namelist>
+```
+
+## 4. Run operations
+
+- Monitor AMR growth, memory pressure, and I/O performance.
+- Validate checkpoint/restart chain before long run sequences.
+- Perform periodic science sanity checks during active jobs.

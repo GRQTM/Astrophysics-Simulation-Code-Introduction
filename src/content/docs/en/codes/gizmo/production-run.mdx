@@ -1,0 +1,40 @@
+---
+title: Production Run
+description: Operational checklist for a full GIZMO production run.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. Lock executable and config
+
+- Freeze compile options and parameter files.
+- Save source revision and dependency versions.
+- Keep production binary separate from test binaries.
+
+## 2. Stage production workspace
+
+```bash
+mkdir -p /scratch/<project>/gizmo-prod/{ic,output,logs,restart}
+cp <ic-files> /scratch/<project>/gizmo-prod/ic/
+```
+
+## 3. Launch job chain
+
+```bash
+#!/bin/bash
+#SBATCH -J gizmo_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/gizmo-prod
+srun /path/to/GIZMO params_prod.txt
+```
+
+## 4. Operate and audit
+
+- Monitor load balance and timestep adaptation.
+- Verify checkpoint integrity before each continuation job.
+- Run periodic science sanity checks while jobs are active.

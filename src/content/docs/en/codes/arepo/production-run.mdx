@@ -1,0 +1,46 @@
+---
+title: Production Run
+description: Launch and operate a production-grade AREPO simulation.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. Freeze a production configuration
+
+- Finalize `Config.sh` and runtime parameter file.
+- Store them together with the exact source revision used.
+- Build a dedicated production executable.
+
+## 2. Stage data and scheduler job
+
+```bash
+mkdir -p /scratch/<project>/arepo-prod/{ic,output,logs,restart}
+cp <ic-file> /scratch/<project>/arepo-prod/ic/
+```
+
+Example SLURM launcher:
+
+```bash
+#!/bin/bash
+#SBATCH -J arepo_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/arepo-prod
+srun /path/to/Arepo params_prod.txt
+```
+
+## 3. Operate safely
+
+- Start with a short pilot allocation on production settings.
+- Monitor timestep behavior, memory usage, and I/O rate.
+- Enable/rehearse restart flow before long walltime chains.
+
+## 4. Post-run QA
+
+- Verify global conservation metrics and expected runtime scaling.
+- Compare key diagnostics against pilot and previous baseline runs.
+- Archive executable, params, scheduler scripts, and metadata with outputs.

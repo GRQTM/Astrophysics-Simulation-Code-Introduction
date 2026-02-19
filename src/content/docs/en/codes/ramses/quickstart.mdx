@@ -1,0 +1,36 @@
+---
+title: Quickstart
+description: Set up RAMSES and run a first AMR test problem.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- Build a RAMSES executable.
+- Run one small AMR hydro validation case.
+- Confirm expected output files and stable execution.
+
+## Installation
+
+1. Clone the official RAMSES repository.
+2. Install compiler + MPI + HDF5 environment for your platform.
+3. Follow the current user-guide build path for your branch/release.
+4. Keep a minimal first-run configuration before enabling extra modules.
+
+## Example run used here
+
+```bash
+git clone https://github.com/ramses-organisation/ramses.git
+cd ramses
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j8
+mpirun -np 4 <path-to-ramses-binary> <input-namelist>
+```
+
+## Validate quickly
+
+- Check AMR level evolution for the expected test behavior.
+- Confirm snapshots/checkpoints are written as planned.
+- Compare one profile with reference curves from documentation.

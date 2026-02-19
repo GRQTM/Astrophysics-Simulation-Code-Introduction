@@ -1,0 +1,40 @@
+---
+title: Production Run
+description: RAMSES 본실행 실행 및 운영 절차.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. 본실행 상태 고정
+
+- 소스 리비전, 컴파일 옵션, namelist를 최종 고정합니다.
+- 본실행용 실행 파일 1개를 빌드해 보관합니다.
+- 환경/모듈 버전 정보를 함께 기록합니다.
+
+## 2. 런 디렉토리 준비
+
+```bash
+mkdir -p /scratch/<project>/ramses-prod/{ic,output,logs,restart}
+cp <ic-and-namelist-files> /scratch/<project>/ramses-prod/ic/
+```
+
+## 3. 스케줄러 실행
+
+```bash
+#!/bin/bash
+#SBATCH -J ramses_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/ramses-prod
+srun <path-to-ramses-binary> <input-namelist>
+```
+
+## 4. 운영 및 품질 확인
+
+- AMR 성장, 메모리 압박, I/O 성능을 모니터링합니다.
+- 체크포인트/재시작 체인을 안정적으로 운영합니다.
+- 핵심 과학 진단량을 주기적으로 검증합니다.

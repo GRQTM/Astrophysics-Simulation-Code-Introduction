@@ -110,6 +110,7 @@ const hasSidebar = sidebar && sidebar.length > 0;
   let isInitialized = false;
   let themeToggleHandler: (() => void) | null = null;
   let astroPageLoadHandler: (() => void) | null = null;
+  let sidebarAccordionCleanup: (() => void) | null = null;
 
   // page 스타일 테마 토글 (ThemeSelect 컴포넌트로 대체됨)
   function initpageThemeToggle() {
@@ -152,6 +153,232 @@ const hasSidebar = sidebar && sidebar.length > 0;
     }
   }
 
+  function initSidebarCodeAccordion() {
+    if (sidebarAccordionCleanup) {
+      sidebarAccordionCleanup();
+    }
+
+    const cleanups: Array<() => void> = [];
+    const ROOT_SELECTOR = ".page-sidebar, .page-mobile-menu-nav";
+
+    const directChildByClass = (
+      parent: Element,
+      className: string
+    ): HTMLElement | null => {
+      for (const child of Array.from(parent.children)) {
+        if (child.classList.contains(className)) {
+          return child as HTMLElement;
+        }
+      }
+      return null;
+    };
+
+    const getCodeGroups = (root: HTMLElement): HTMLElement[] => {
+      const container = root.querySelector(".page-sidebar-container");
+      if (!container) {
+        return [];
+      }
+
+      const topGroups = Array.from(container.children).filter((child) =>
+        child.classList.contains("page-sidebar-group")
+      ) as HTMLElement[];
+
+      const codesGroup = topGroups.find((group) => {
+        const title = directChildByClass(group, "page-sidebar-group-title");
+        if (title?.textContent?.trim().toLowerCase() === "codes") {
+          return true;
+        }
+
+        const links = directChildByClass(group, "page-sidebar-group-links");
+        const nestedGroups = links
+          ? Array.from(links.children).filter((child) =>
+              child.classList.contains("page-sidebar-group")
+            )
+          : [];
+        return nestedGroups.length >= 3;
+      });
+
+      if (!codesGroup) {
+        return [];
+      }
+
+      const codesGroupLinks = directChildByClass(codesGroup, "page-sidebar-group-links");
+      if (!codesGroupLinks) {
+        return [];
+      }
+
+      return Array.from(codesGroupLinks.children).filter((child) =>
+        child.classList.contains("page-sidebar-group")
+      ) as HTMLElement[];
+    };
+
+    const applyOpenState = (
+      root: HTMLElement,
+      codeGroups: HTMLElement[],
+      openGroup: HTMLElement | null
+    ) => {
+      codeGroups.forEach((group, groupIndex) => {
+        const title = directChildByClass(group, "page-sidebar-group-title");
+        const links = directChildByClass(group, "page-sidebar-group-links");
+        if (!title || !links) {
+          return;
+        }
+
+        const groupId = `page-code-group-${root.dataset.pageCodeRootId}-${groupIndex}`;
+        const isOpen = openGroup !== null && group === openGroup;
+
+        group.classList.add("page-code-sidebar-group");
+        group.classList.toggle("is-open", isOpen);
+
+        title.classList.add("page-code-sidebar-title");
+        title.setAttribute("role", "button");
+        title.setAttribute("tabindex", "0");
+        title.setAttribute("aria-controls", groupId);
+        title.setAttribute("aria-expanded", String(isOpen));
+
+        links.classList.add("page-code-sidebar-links");
+        links.id = groupId;
+        links.style.setProperty("display", isOpen ? "flex" : "none", "important");
+      });
+
+      if (openGroup === null) {
+        root.dataset.pageCodeAllClosed = "true";
+        root.dataset.pageCodeOpenIndex = "";
+      } else {
+        const openIndex = codeGroups.indexOf(openGroup);
+        root.dataset.pageCodeAllClosed = "false";
+        root.dataset.pageCodeOpenIndex = openIndex >= 0 ? String(openIndex) : "";
+      }
+    };
+
+    const initializeRoot = (root: HTMLElement) => {
+      if (!root.dataset.pageCodeRootId) {
+        root.dataset.pageCodeRootId = Math.random().toString(36).slice(2, 8);
+      }
+
+      const codeGroups = getCodeGroups(root);
+      if (codeGroups.length === 0) {
+        return;
+      }
+
+      const allClosed = root.dataset.pageCodeAllClosed === "true";
+      const savedOpenIndex = Number.parseInt(
+        root.dataset.pageCodeOpenIndex || "",
+        10
+      );
+
+      let currentGroup: HTMLElement | null = null;
+      if (!allClosed && Number.isInteger(savedOpenIndex)) {
+        currentGroup = codeGroups[savedOpenIndex] || null;
+      }
+
+      if (!allClosed && !currentGroup) {
+        currentGroup =
+          codeGroups.find((group) =>
+            group.querySelector(".page-sidebar-link[aria-current='page']")
+          ) || null;
+      }
+
+      applyOpenState(root, codeGroups, currentGroup);
+    };
+
+    const roots = Array.from(
+      document.querySelectorAll(ROOT_SELECTOR)
+    ) as HTMLElement[];
+    roots.forEach((root) => initializeRoot(root));
+
+    const toggleGroup = (title: HTMLElement) => {
+      const root = title.closest(ROOT_SELECTOR) as HTMLElement | null;
+      if (!root) {
+        return;
+      }
+
+      const codeGroups = getCodeGroups(root);
+      if (codeGroups.length === 0) {
+        return;
+      }
+
+      const targetGroup = title.closest(".page-sidebar-group") as HTMLElement | null;
+      if (!targetGroup || !codeGroups.includes(targetGroup)) {
+        return;
+      }
+
+      const nextOpenGroup = targetGroup.classList.contains("is-open")
+        ? null
+        : targetGroup;
+
+      applyOpenState(root, codeGroups, nextOpenGroup);
+    };
+
+    const clickHandler = (event: Event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+      const title = event.target.closest(".page-code-sidebar-title");
+      if (!(title instanceof HTMLElement)) {
+        return;
+      }
+      event.preventDefault();
+      toggleGroup(title);
+    };
+
+    const keydownHandler = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+      const title = event.target.closest(".page-code-sidebar-title");
+      if (!(title instanceof HTMLElement)) {
+        return;
+      }
+      event.preventDefault();
+      toggleGroup(title);
+    };
+
+    document.addEventListener("click", clickHandler);
+    document.addEventListener("keydown", keydownHandler);
+
+    let rafId = 0;
+    const scheduleRefresh = () => {
+      if (rafId) {
+        return;
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        const latestRoots = Array.from(
+          document.querySelectorAll(ROOT_SELECTOR)
+        ) as HTMLElement[];
+        latestRoots.forEach((root) => initializeRoot(root));
+      });
+    };
+
+    const sidebarObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type !== "childList") {
+          continue;
+        }
+        if (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) {
+          scheduleRefresh();
+          break;
+        }
+      }
+    });
+    sidebarObserver.observe(document.body, { childList: true, subtree: true });
+
+    sidebarAccordionCleanup = () => {
+      document.removeEventListener("click", clickHandler);
+      document.removeEventListener("keydown", keydownHandler);
+      sidebarObserver.disconnect();
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      cleanups.forEach((cleanup) => cleanup());
+      sidebarAccordionCleanup = null;
+    };
+  }
+
   // 초기화 함수
   function initializeHeader() {
     // 이미 초기화되었다면 중복 실행 방지
@@ -162,6 +389,7 @@ const hasSidebar = sidebar && sidebar.length > 0;
     initpageThemeToggle();
     setpageActiveNavLink();
     updateLogo();
+    initSidebarCodeAccordion();
 
     // 테마 변경 감지
     const observer = new MutationObserver((mutations) => {
@@ -194,9 +422,8 @@ const hasSidebar = sidebar && sidebar.length > 0;
       themeToggleHandler = null;
     }
 
-    if (astroPageLoadHandler) {
-      document.removeEventListener("astro:page-load", astroPageLoadHandler);
-      astroPageLoadHandler = null;
+    if (sidebarAccordionCleanup) {
+      sidebarAccordionCleanup();
     }
 
     isInitialized = false;

@@ -1,0 +1,40 @@
+---
+title: Production Run
+description: Execute and monitor an Enzo production campaign.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. Lock production inputs
+
+- Freeze parameter file, refinement setup, and module toggles.
+- Record source revision and compiler/MPI versions.
+- Build a production binary separate from development builds.
+
+## 2. Stage run directory
+
+```bash
+mkdir -p /scratch/<project>/enzo-prod/{input,output,logs,restart}
+cp <parameter-files> /scratch/<project>/enzo-prod/input/
+```
+
+## 3. Launch with scheduler
+
+```bash
+#!/bin/bash
+#SBATCH -J enzo_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/enzo-prod
+srun <path-to-enzo-binary> input/<parameter-file>
+```
+
+## 4. Operate and verify
+
+- Monitor AMR level growth, memory per rank, and walltime efficiency.
+- Test checkpoint/restart before chaining long jobs.
+- Run post-processing checks on each major output block.

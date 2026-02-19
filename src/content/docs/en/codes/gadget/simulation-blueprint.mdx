@@ -1,0 +1,25 @@
+---
+title: Simulation Blueprint
+description: Define a production-ready GADGET simulation design.
+sidebar:
+  label: Simulation Blueprint
+  order: 3
+---
+
+## Use-case framing
+
+- Specify whether the run is collisionless, hydro, or fully coupled.
+- List primary scientific metrics and required output products.
+- Translate target scales into particle counts and softening lengths.
+
+## Numerical setup
+
+- Choose gravity and time-integration tolerances for target accuracy.
+- Set SPH-related parameters with at least one sensitivity test.
+- Include a small-box pilot for throughput and stability checks.
+
+## Data and analysis plan
+
+- Define snapshot cadence from expected dynamical timescales.
+- Store lightweight monitoring channels for frequent QA.
+- Reserve space for restarts and metadata artifacts.

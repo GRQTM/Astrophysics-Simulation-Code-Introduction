@@ -1,0 +1,36 @@
+---
+title: Quickstart
+description: AREPO 첫 예제를 위한 설치와 실행.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- 로컬 환경에서 AREPO 실행 파일을 빌드합니다.
+- `wave_1d` 1D 유체 예제를 실행합니다.
+- 출력 파일이 정상 생성되는지 확인합니다.
+
+## Installation
+
+1. Linux/macOS 환경에서 C/C++ 컴파일러, `make`, MPI를 준비합니다.
+2. 선택한 설정에 필요한 라이브러리(예: FFTW, GSL, HDF5)를 설치합니다.
+3. 접근 가능한 AREPO 소스 저장소에서 코드를 받습니다.
+4. 로컬 빌드 설정 파일의 라이브러리 경로를 점검합니다.
+
+## Example run used here
+
+```bash
+cd <arepo-root>
+cp examples/wave_1d/Config.sh ./Config.sh
+cp examples/wave_1d/param.txt ./param_wave_1d.txt
+make -j8
+mpirun -np 4 ./Arepo param_wave_1d.txt
+```
+
+## 빠른 검증
+
+- 로그에서 타임스텝이 정상 진행되는지 확인합니다.
+- 스냅샷 파일이 생성됐는지 확인합니다.
+- 밀도 등 기본 물리량을 간단히 플롯해 이상 여부를 봅니다.

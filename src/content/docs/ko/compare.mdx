@@ -1,20 +1,21 @@
 ---
 title: 비교
-description: Arepo, Enzo, Gadget, Gizmo 빠른 비교.
+description: Arepo, Enzo, Gadget, Gizmo, Ramses 빠른 비교.
 sidebar:
   order: 3
 ---
 
 # 코드 비교 한눈에 보기
 
-입문자를 위해 짧게 정리한 비교표입니다. 상세 확장 시에는 반드시 출처 근거를 붙이세요.
+입문자 기준으로 핵심만 압축한 표입니다.
 
 | 코드 | 방법 계열 | 대표 강점 | 잠재적 주의점 |
 | --- | --- | --- | --- |
-| Arepo | moving-mesh 유한체적 | 유체 경계 표현 + 적응성 | 설정 복잡도 |
-| Enzo | Eulerian AMR 격자 | 계층적 세분화 제어 | 세분화 전략 민감도 |
-| Gadget | TreePM + SPH 계열 | 우주론 분야 선행 사용 사례 | SPH 설정 의존성 |
-| Gizmo | mesh-free finite-mass/volume | 입자 적응성 + 현대적 hydro | 모드/파라미터 튜닝 |
+| Arepo | Moving-mesh 유한체적 | 경계면 추적 + 적응성 | 설정 조합이 많아 초기 복잡도 큼 |
+| Enzo | Eulerian AMR 격자 | refinement 제어가 명시적 | refinement 전략 민감도 |
+| Gadget | TreePM + SPH 계열 | 우주론 입자 시뮬레이션의 성숙한 워크플로 | SPH 파라미터 의존성 |
+| Gizmo | Mesh-free finite-mass/volume | 라그랑지안 적응성과 현대적 hydro 모드 | 모드/파라미터 튜닝 부담 |
+| Ramses | Eulerian AMR 유한체적 | AMR 기반 다중물리 확장성 | AMR 기준/런타임 튜닝 복잡도 |
 
 ## 코드 상세 페이지
 
@@ -22,3 +23,4 @@ sidebar:
 - [Enzo](/ko/codes/enzo/)
 - [Gadget](/ko/codes/gadget/)
 - [Gizmo](/ko/codes/gizmo/)
+- [Ramses](/ko/codes/ramses/)

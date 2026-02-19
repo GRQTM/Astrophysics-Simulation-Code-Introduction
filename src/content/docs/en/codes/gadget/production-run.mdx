@@ -1,0 +1,44 @@
+---
+title: Production Run
+description: Run GADGET at scale with reproducible operations.
+sidebar:
+  label: Production Run
+  order: 4
+---
+
+## 1. Freeze binary and parameters
+
+- Finalize compile flags and runtime parameter file.
+- Archive source revision, toolchain versions, and compile logs.
+- Build once and reuse the same binary across the campaign.
+
+## 2. Stage filesystem and launch script
+
+```bash
+mkdir -p /scratch/<project>/gadget-prod/{ic,output,logs,restart}
+cp <ic-files> /scratch/<project>/gadget-prod/ic/
+```
+
+```bash
+#!/bin/bash
+#SBATCH -J gadget_prod
+#SBATCH -N 8
+#SBATCH --ntasks-per-node=64
+#SBATCH -t 24:00:00
+#SBATCH -o logs/slurm-%j.out
+
+cd /scratch/<project>/gadget-prod
+srun /path/to/Gadget4 params_prod.txt
+```
+
+## 3. Runtime operations
+
+- Track timestep floor, load balance, and memory headroom.
+- Verify checkpoints are produced and restartable.
+- Keep run metadata in the same directory tree as outputs.
+
+## 4. Quality checks
+
+- Compare global statistics with pilot and baseline runs.
+- Validate key observables against expected physical trends.
+- Archive scripts and environment manifests with final data.

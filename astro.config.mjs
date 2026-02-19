@@ -18,9 +18,10 @@ export default defineConfig({
       logo: {
         src: './src/assets/galaxy.svg',
       },
-      description: 'Beginner-first guide to Arepo, Enzo, Gadget, and Gizmo.',
+      description: 'Beginner-first guide to Arepo, Enzo, Gadget, Gizmo, and Ramses.',
       pagination: false,
       components: {
+        Head: '/src/components/StarlightHead.astro',
         Header: '/src/components/PageHeader.astro',
         TableOfContents: '/src/components/InstantTableOfContents.astro',
         Footer: '/src/components/EmptyFooter.astro',

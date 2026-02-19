@@ -1,0 +1,35 @@
+---
+title: Quickstart
+description: Build GADGET and complete a first validation run.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- Compile a runnable GADGET executable.
+- Execute a small hydro or gravity example.
+- Check output integrity and runtime stability.
+
+## Installation
+
+1. Prepare compiler + MPI + FFTW/HDF5 stack per official instructions.
+2. Download/extract the GADGET source package allowed for your use case.
+3. Configure build options (`Config.sh` or equivalent) for a minimal test.
+4. Build with parallel make.
+
+## Example run used here
+
+```bash
+cd <gadget-root>
+cp examples/<test-case>/Config.sh ./Config.sh
+make -j8
+mpirun -np 4 ./Gadget4 examples/<test-case>/param.txt
+```
+
+## Validate quickly
+
+- Ensure the run exits normally and writes expected snapshots.
+- Check log-reported conserved quantities for obvious drift.
+- Plot one diagnostic profile to confirm non-pathological behavior.

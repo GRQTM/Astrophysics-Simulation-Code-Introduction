@@ -10,6 +10,6 @@ dist/
 *.pfx
 .npmrc
 .netrc
-Arepo/
-Enzo/
+/Arepo/
+/Enzo/
 /docs/

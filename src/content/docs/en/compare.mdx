@@ -1,20 +1,21 @@
 ---
 title: Compare
-description: Side-by-side view of Arepo, Enzo, Gadget, and Gizmo.
+description: Side-by-side view of Arepo, Enzo, Gadget, Gizmo, and Ramses.
 sidebar:
   order: 3
 ---
 
 # Side-by-side code comparison
 
-This matrix is intentionally compact for beginners. Add details only with source-backed claims.
+This table is intentionally compact for beginners.
 
 | Code | Method family | Typical strength | Potential caveat |
 | --- | --- | --- | --- |
-| Arepo | Moving-mesh finite-volume | Fluid interface handling + adaptivity | Broad configuration space |
-| Enzo | Eulerian AMR grid | Hierarchical refinement control | Refinement sensitivity |
-| Gadget | TreePM + SPH family | Broad historical usage in cosmology | SPH setting dependence |
-| Gizmo | Mesh-free finite-mass/volume | Particle adaptivity + modern hydro behavior | Mode and parameter tuning |
+| Arepo | Moving-mesh finite-volume | Interface tracking + adaptivity | Broad configuration space |
+| Enzo | Eulerian AMR grid | Explicit refinement control | Refinement strategy sensitivity |
+| Gadget | TreePM + SPH family | Mature cosmological particle workflows | SPH parameter dependence |
+| Gizmo | Mesh-free finite-mass/volume | Lagrangian adaptivity with modern hydro modes | Mode/parameter tuning overhead |
+| Ramses | Eulerian AMR finite-volume | Strong AMR-based multiphysics workflows | AMR criteria and runtime tuning complexity |
 
 ## Code pages
 
@@ -22,3 +23,4 @@ This matrix is intentionally compact for beginners. Add details only with source
 - [Enzo](/en/codes/enzo/)
 - [Gadget](/en/codes/gadget/)
 - [Gizmo](/en/codes/gizmo/)
+- [Ramses](/en/codes/ramses/)

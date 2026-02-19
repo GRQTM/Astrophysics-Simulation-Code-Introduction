@@ -1,6 +1,12 @@
 @import '@pelagornis/page/styles';
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 130ms;
+  animation-timing-function: ease-out;
+}
+
 :root {
   --font-sans: 'Space Grotesk', 'Noto Sans KR', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
@@ -81,11 +87,42 @@ html body .page-main-container .page-sidebar-container {
 }
 
 .page-sidebar-group-title::after {
-  content: '';
-  display: block;
-  flex: 1;
-  height: 1px;
-  background: var(--page-border-light);
+  display: none !important;
+}
+
+.page-code-sidebar-title {
+  font-size: 0.84rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: capitalize !important;
+  color: var(--page-text-secondary) !important;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.44rem 0.76rem !important;
+}
+
+.page-code-sidebar-group>.page-code-sidebar-links {
+  display: none !important;
+}
+
+.page-code-sidebar-group.is-open>.page-code-sidebar-links {
+  display: flex !important;
+}
+
+.page-code-sidebar-links .page-sidebar-link {
+  font-size: 0.8rem !important;
+  font-weight: 610 !important;
+  color: #5d636e !important;
+  padding: 0.46rem 0.78rem !important;
+  min-height: 2rem !important;
+}
+
+.page-code-sidebar-links .page-sidebar-link:hover {
+  color: #434a56 !important;
+}
+
+.page-code-sidebar-links .page-sidebar-link[aria-current='page'] {
+  color: var(--sidebar-accent) !important;
 }
 
 .page-sidebar-link {
@@ -156,6 +193,18 @@ html body .page-main-container .page-sidebar-container {
       rgba(var(--sidebar-accent-rgb), 0.36) 0%,
       rgba(var(--sidebar-accent-rgb), 0.17) 100%) !important;
   border-color: rgba(var(--sidebar-accent-rgb), 0.58) !important;
+}
+
+[data-theme='dark'] .page-code-sidebar-title {
+  color: #dbe2ef !important;
+}
+
+[data-theme='dark'] .page-code-sidebar-links .page-sidebar-link {
+  color: #aeb8c8 !important;
+}
+
+[data-theme='dark'] .page-code-sidebar-links .page-sidebar-link:hover {
+  color: #e1e7f1 !important;
 }
 
 @media (max-width: 768px) {

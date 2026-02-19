@@ -1,0 +1,34 @@
+---
+title: Quickstart
+description: Enzo 설치 후 첫 AMR 예제 실행.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- Enzo 실행 파일을 빌드합니다.
+- 1D Sod shock-tube 예제를 실행합니다.
+- 출력 결과와 기본 AMR 동작을 확인합니다.
+
+## Installation
+
+1. `enzo-dev`를 클론하고 공식 빌드 요구사항을 확인합니다.
+2. 플랫폼에 맞는 컴파일러/MPI/HDF5 환경을 준비합니다.
+3. 문서 절차에 따라 빌드하고 실행 파일 경로를 확인합니다.
+
+## Example run used here
+
+```bash
+git clone https://github.com/enzo-project/enzo-dev.git
+cd enzo-dev/run/Hydro/Hydro-1D/SodShockTube
+# 예제 문서에 맞춰 입력 파일을 생성/점검
+mpirun -np 4 <path-to-enzo-binary> <sod-parameter-file>
+```
+
+## 빠른 검증
+
+- 런이 정상 종료되는지 확인합니다.
+- 충격파/접촉면 구조가 출력에 나타나는지 확인합니다.
+- 예제 기준 프로파일과 1차 비교를 수행합니다.

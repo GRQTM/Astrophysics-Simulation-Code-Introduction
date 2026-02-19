@@ -1,6 +1,6 @@
 ---
 title: 홈
-description: 천체물리 시뮬레이션 코드를 처음 배우는 사람을 위한 입문 가이드.
+description: 천체물리 시뮬레이션 코드를 처음 배우는 분들을 위한 입문 가이드.
 sidebar:
   label: 홈
   order: 0
@@ -12,11 +12,11 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
   <span class="hero-eyebrow">v 0.1 Foundation</span>
   <h1 class="hero-title">처음부터 배우는<br/>천체물리 시뮬레이션</h1>
   <p class="hero-subtitle">
-    이 사이트는 네 가지 주요 시뮬레이션 코드 — <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, <strong>Gizmo</strong> — 를 입문자 눈높이에서 소개합니다.
+    이 사이트는 <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, <strong>Gizmo</strong>, <strong>Ramses</strong> 다섯 코드를 입문자 순서로 안내합니다.
   </p>
   <div class="hero-actions">
     <a href="/ko/basics/" class="hero-btn hero-btn-primary">기초부터 읽기</a>
-    <a href="/ko/codes/arepo/" class="hero-btn hero-btn-secondary">AREPO 실습 시작 →</a>
+    <a href="/ko/codes/arepo/quickstart/" class="hero-btn hero-btn-secondary">Arepo Quickstart 시작 →</a>
   </div>
 </div>
 
@@ -25,22 +25,22 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 <CardGrid>
   <LinkCard
     title="시뮬레이션 기초"
-    description="시뮬레이션이란 무엇인지, 해상도가 왜 중요한지, 시간 적분이 어떻게 작동하는지 알아봅니다."
+    description="메시, 입자, 해상도, 시간 적분 등 핵심 개념을 먼저 정리합니다."
     href="/ko/basics/"
   />
   <LinkCard
     title="코드별 가이드"
-    description="Arepo, Enzo, Gadget, Gizmo — 방법론 요약, 설치, 실습 가이드를 제공합니다."
+    description="각 코드는 Overview, Quickstart, Simulation Blueprint, Production Run 4개 챕터로 구성됩니다."
     href="/ko/codes/arepo/"
   />
   <LinkCard
     title="코드 비교"
-    description="방법론, 장단점, 적용 분야를 한눈에 비교하는 표를 제공합니다."
+    description="방법 계열, 강점, 주의점을 한 번에 비교합니다."
     href="/ko/compare/"
   />
   <LinkCard
     title="용어집"
-    description="핵심 시뮬레이션 개념에 대한 일관된 용어 정의를 제공합니다."
+    description="핵심 시뮬레이션 용어를 일관된 기준으로 정리했습니다."
     href="/ko/glossary/"
   />
 </CardGrid>
@@ -51,28 +51,28 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
   <div class="path-step">
     <span class="step-number">1</span>
     <div class="step-content">
-      <strong>기초 다지기</strong>
-      <span><a href="/ko/basics/">기초</a>를 읽고 메시, 입자, 해상도를 이해합니다.</span>
+      <strong>기초 정리</strong>
+      <span><a href="/ko/basics/">기초</a>를 먼저 읽고 공통 개념을 맞춥니다.</span>
     </div>
   </div>
   <div class="path-step">
     <span class="step-number">2</span>
     <div class="step-content">
-      <strong>코드별 탐색</strong>
-      <span><a href="/ko/codes/arepo/">Arepo</a>, <a href="/ko/codes/enzo/">Enzo</a>, <a href="/ko/codes/gadget/">Gadget</a>, <a href="/ko/codes/gizmo/">Gizmo</a> 페이지를 방문합니다.</span>
+      <strong>Quickstart 실행</strong>
+      <span><a href="/ko/codes/arepo/quickstart/">Arepo</a>, <a href="/ko/codes/enzo/quickstart/">Enzo</a>, <a href="/ko/codes/gadget/quickstart/">Gadget</a>, <a href="/ko/codes/gizmo/quickstart/">Gizmo</a>, <a href="/ko/codes/ramses/quickstart/">Ramses</a> 예제를 순서대로 실행합니다.</span>
     </div>
   </div>
   <div class="path-step">
     <span class="step-number">3</span>
     <div class="step-content">
-      <strong>비교 후 결정</strong>
-      <span><a href="/ko/compare/">비교</a>와 <a href="/ko/glossary/">용어집</a>으로 적합한 도구를 선택합니다.</span>
+      <strong>설계와 본실행</strong>
+      <span><a href="/ko/compare/">비교</a> 후 각 코드의 Blueprint/Production Run 챕터로 확장합니다.</span>
     </div>
   </div>
 </div>
 
 ## 1차 목표
 
-- 모든 실습은 `conda` 가상환경에서 진행합니다.
-- 첫 완주 목표: **AREPO `wave_1d` 예제를 직접 컴파일/실행/검증**
-- [바로 시작 → AREPO 실습 페이지](/ko/codes/arepo/)
+- 모든 예제는 `conda` 가상환경에서 실행합니다.
+- 최소 1개 코드를 **Quickstart → Production Run**까지 완주합니다.
+- 첫 시작 경로: [Arepo Quickstart](/ko/codes/arepo/quickstart/)

@@ -1,0 +1,38 @@
+---
+title: Quickstart
+description: Install prerequisites and run the first AREPO example.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- Build an AREPO executable in your local environment.
+- Run a 1D hydro sanity case (`wave_1d`).
+- Confirm that outputs are generated without runtime errors.
+
+## Installation
+
+1. Prepare a Linux or macOS environment with C/C++ compiler, `make`, and MPI.
+2. Install required scientific libraries for your chosen setup (commonly FFTW, GSL, HDF5).
+3. Obtain the AREPO source from your licensed/authorized repository.
+4. Confirm toolchain paths in your local build configuration files.
+
+## Example run used here
+
+```bash
+cd <arepo-root>
+cp examples/wave_1d/Config.sh ./Config.sh
+cp examples/wave_1d/param.txt ./param_wave_1d.txt
+make -j8
+mpirun -np 4 ./Arepo param_wave_1d.txt
+```
+
+## Validate quickly
+
+- Check the run log for successful timestep advancement.
+- Confirm output snapshot files were written.
+- Plot one primitive variable (e.g., density) to verify a physically smooth profile.
+
+Use [Production Run](/en/codes/arepo/production-run/) when moving from this smoke test to a full project workflow.

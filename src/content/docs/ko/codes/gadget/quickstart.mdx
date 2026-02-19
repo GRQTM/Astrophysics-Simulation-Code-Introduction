@@ -1,0 +1,35 @@
+---
+title: Quickstart
+description: Gadget 첫 실행을 위한 기본 절차.
+sidebar:
+  label: Quickstart
+  order: 2
+---
+
+## Target outcome
+
+- Gadget 실행 파일을 컴파일합니다.
+- 소규모 hydro/중력 예제를 1회 실행합니다.
+- 출력 파일과 로그 안정성을 확인합니다.
+
+## Installation
+
+1. 공식 안내에 맞춰 컴파일러/MPI/FFTW/HDF5 환경을 준비합니다.
+2. 사용 가능한 GADGET 소스 패키지를 확보합니다.
+3. 최소 테스트용 빌드 설정을 적용합니다.
+4. 병렬 빌드 후 실행 파일 생성을 확인합니다.
+
+## Example run used here
+
+```bash
+cd <gadget-root>
+cp examples/<test-case>/Config.sh ./Config.sh
+make -j8
+mpirun -np 4 ./Gadget4 examples/<test-case>/param.txt
+```
+
+## 빠른 검증
+
+- 정상 종료 및 스냅샷 생성 여부를 확인합니다.
+- 로그의 보존량 지표에 이상치가 없는지 확인합니다.
+- 대표 물리량 1개를 플롯해 비정상 거동을 점검합니다.
