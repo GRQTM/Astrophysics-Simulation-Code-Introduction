@@ -31,9 +31,8 @@ import Default from '@astrojs/starlight/components/Search.astro';
 </div>
 
 <style>
-  :global(site-search button[data-open-modal]),
-  :global(button[data-open-modal]),
-  :global(.sl-search-button) {
+  :global([data-page-search] site-search button[data-open-modal]),
+  :global([data-page-search] .sl-search-button) {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;
@@ -135,55 +134,122 @@ import Default from '@astrojs/starlight/components/Search.astro';
 </style>
 
 <script>
+  import { pagefindUserConfig } from 'virtual:starlight/pagefind-config';
+
   const pageSearchInitKey = '__pageSearchDelegated';
+  const pageSearchInitMapKey = '__pageSearchInitPromiseMap';
 
-  function findNativeSearchButton(sourceButton) {
-    const scopedRoot = sourceButton?.closest('[data-page-search]');
-    if (scopedRoot instanceof HTMLElement) {
-      const scoped = scopedRoot.querySelector(
-        'site-search button[data-open-modal], button[data-open-modal], .sl-search-button'
-      );
-      if (
-        scoped instanceof HTMLElement &&
-        !scoped.classList.contains('page-search-button')
-      ) {
-        return scoped;
-      }
-    }
-
-    const selectors = [
-      'site-search button[data-open-modal]',
-      'button[data-open-modal]',
-      '.sl-search-button',
-      '[data-search-button]',
-    ];
-
-    for (const selector of selectors) {
-      const candidates = Array.from(document.querySelectorAll(selector))
-        .filter(
-          (candidate) =>
-            candidate instanceof HTMLElement &&
-            !candidate.classList.contains('page-search-button')
-        );
-      const latest = candidates.at(-1);
-      if (latest instanceof HTMLElement) {
-        return latest;
-      }
-    }
-
-    return null;
+  function getSearchRoot(sourceButton) {
+    const root = sourceButton?.closest('[data-page-search]');
+    return root instanceof HTMLElement ? root : null;
   }
 
-  function triggerSearch(sourceButton) {
-    const nativeButton = findNativeSearchButton(sourceButton);
+  function getSiteSearch(root) {
+    const siteSearch = root?.querySelector('site-search');
+    return siteSearch instanceof HTMLElement ? siteSearch : null;
+  }
+
+  function getSearchContainer(siteSearch) {
+    const container = siteSearch?.querySelector('#starlight__search');
+    return container instanceof HTMLElement ? container : null;
+  }
+
+  function getNativeSearchButton(root) {
+    const nativeButton = root?.querySelector('site-search button[data-open-modal]');
+    return nativeButton instanceof HTMLButtonElement ? nativeButton : null;
+  }
+
+  function getSearchDialog(root) {
+    const dialog = root?.querySelector('site-search dialog');
+    return dialog instanceof HTMLDialogElement ? dialog : null;
+  }
+
+  function getInitPromiseMap() {
+    if (!(window[pageSearchInitMapKey] instanceof WeakMap)) {
+      window[pageSearchInitMapKey] = new WeakMap();
+    }
+    return window[pageSearchInitMapKey];
+  }
+
+  async function ensurePagefindInitialized(root) {
+    if (import.meta.env.DEV) return;
+
+    const siteSearch = getSiteSearch(root);
+    const container = getSearchContainer(siteSearch);
+    if (!siteSearch || !container) return;
+
+    if (
+      container.dataset.pagefindInitialized === 'true' ||
+      container.childElementCount > 0
+    ) {
+      container.dataset.pagefindInitialized = 'true';
+      return;
+    }
+
+    const initMap = getInitPromiseMap();
+    const inFlight = initMap.get(container);
+    if (inFlight) {
+      await inFlight;
+      return;
+    }
+
+    const initPromise = (async () => {
+      let translations = {};
+      try {
+        translations = JSON.parse(siteSearch.dataset.translations || '{}');
+      } catch {
+        translations = {};
+      }
+
+      const shouldStrip = siteSearch.dataset.stripTrailingSlash !== undefined;
+      const stripTrailingSlash = (path) => path.replace(/(.)\/(#.*)?$/, '$1$2');
+      const formatURL = shouldStrip ? stripTrailingSlash : (path) => path;
+
+      try {
+        // @ts-expect-error - @pagefind/default-ui has no bundled TS types for runtime import here.
+        const { PagefindUI } = await import('@pagefind/default-ui');
+
+        new PagefindUI({
+          ...pagefindUserConfig,
+          element: container,
+          baseUrl: import.meta.env.BASE_URL,
+          bundlePath: import.meta.env.BASE_URL.replace(/\/$/, '') + '/pagefind/',
+          showImages: false,
+          translations,
+          showSubResults: true,
+          processResult: (result) => {
+            result.url = formatURL(result.url);
+            result.sub_results = result.sub_results.map((subResult) => {
+              subResult.url = formatURL(subResult.url);
+              return subResult;
+            });
+          },
+        });
+
+        container.dataset.pagefindInitialized = 'true';
+      } catch (error) {
+        console.error('[page-search] Failed to initialize Pagefind UI:', error);
+      }
+    })();
+
+    initMap.set(container, initPromise);
+    await initPromise;
+  }
+
+  async function triggerSearch(sourceButton) {
+    const root = getSearchRoot(sourceButton);
+    if (!root) return;
+
+    await ensurePagefindInitialized(root);
+
+    const nativeButton = getNativeSearchButton(root);
     if (nativeButton && typeof nativeButton.click === 'function') {
+      nativeButton.disabled = false;
       nativeButton.click();
       return;
     }
 
-    const dialog = document.querySelector(
-      'site-search dialog, dialog[aria-label*="Search" i], dialog[aria-label*="검색" i]'
-    );
+    const dialog = getSearchDialog(root);
     if (
       dialog instanceof HTMLDialogElement &&
       typeof dialog.showModal === 'function' &&
@@ -196,18 +262,19 @@ import Default from '@astrojs/starlight/components/Search.astro';
         // ignore and fallback below
       }
     }
+  }
 
-    const isMac = navigator.platform.toUpperCase().includes('MAC');
-    const shortcut = new KeyboardEvent('keydown', {
-      key: 'k',
-      code: 'KeyK',
-      ctrlKey: !isMac,
-      metaKey: isMac,
-      bubbles: true,
-      cancelable: true,
+  function closeStaleSearchDialogs() {
+    document.querySelectorAll('site-search dialog[open]').forEach((dialog) => {
+      if (dialog instanceof HTMLDialogElement) {
+        try {
+          dialog.close();
+        } catch {
+          // Ignore close errors from already-detached dialogs.
+        }
+      }
     });
-    window.dispatchEvent(shortcut);
-    document.dispatchEvent(shortcut);
+    document.body.toggleAttribute('data-search-modal-open', false);
   }
 
   if (!window[pageSearchInitKey]) {
@@ -220,8 +287,10 @@ import Default from '@astrojs/starlight/components/Search.astro';
 
       e.preventDefault();
       e.stopPropagation();
-      triggerSearch(pageSearchButton);
+      void triggerSearch(pageSearchButton);
     });
+
+    document.addEventListener('astro:before-swap', closeStaleSearchDialogs);
 
     window[pageSearchInitKey] = true;
   }
