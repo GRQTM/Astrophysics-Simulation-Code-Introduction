@@ -3,30 +3,32 @@
 import Default from '@astrojs/starlight/components/Search.astro';
 ---
 
-<button
-  aria-label="Search"
-  class="page-search-button"
-  title="Search (Ctrl+K)"
-  type="button"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+<div data-page-search>
+  <button
+    aria-label="Search"
+    class="page-search-button"
+    title="Search (Ctrl+K)"
+    type="button"
   >
-    <circle cx="11" cy="11" r="8"></circle>
-    <path d="m21 21-4.35-4.35"></path>
-  </svg>
-  <span class="sr-only">Search</span>
-</button>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.35-4.35"></path>
+    </svg>
+    <span class="sr-only">Search</span>
+  </button>
 
-<Default />
+  <Default />
+</div>
 
 <style>
   :global(site-search button[data-open-modal]),
@@ -126,12 +128,29 @@ import Default from '@astrojs/starlight/components/Search.astro';
       min-height: 16px !important;
     }
   }
+
+  [data-page-search] {
+    display: contents;
+  }
 </style>
 
 <script>
   const pageSearchInitKey = '__pageSearchDelegated';
 
-  function findNativeSearchButton() {
+  function findNativeSearchButton(sourceButton) {
+    const scopedRoot = sourceButton?.closest('[data-page-search]');
+    if (scopedRoot instanceof HTMLElement) {
+      const scoped = scopedRoot.querySelector(
+        'site-search button[data-open-modal], button[data-open-modal], .sl-search-button'
+      );
+      if (
+        scoped instanceof HTMLElement &&
+        !scoped.classList.contains('page-search-button')
+      ) {
+        return scoped;
+      }
+    }
+
     const selectors = [
       'site-search button[data-open-modal]',
       'button[data-open-modal]',
@@ -140,17 +159,23 @@ import Default from '@astrojs/starlight/components/Search.astro';
     ];
 
     for (const selector of selectors) {
-      const candidate = document.querySelector(selector);
-      if (!(candidate instanceof HTMLElement)) continue;
-      if (candidate.classList.contains('page-search-button')) continue;
-      return candidate;
+      const candidates = Array.from(document.querySelectorAll(selector))
+        .filter(
+          (candidate) =>
+            candidate instanceof HTMLElement &&
+            !candidate.classList.contains('page-search-button')
+        );
+      const latest = candidates.at(-1);
+      if (latest instanceof HTMLElement) {
+        return latest;
+      }
     }
 
     return null;
   }
 
-  function triggerSearch() {
-    const nativeButton = findNativeSearchButton();
+  function triggerSearch(sourceButton) {
+    const nativeButton = findNativeSearchButton(sourceButton);
     if (nativeButton && typeof nativeButton.click === 'function') {
       nativeButton.click();
       return;
@@ -195,7 +220,7 @@ import Default from '@astrojs/starlight/components/Search.astro';
 
       e.preventDefault();
       e.stopPropagation();
-      triggerSearch();
+      triggerSearch(pageSearchButton);
     });
 
     window[pageSearchInitKey] = true;
