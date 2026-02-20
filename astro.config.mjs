@@ -11,6 +11,7 @@ const base = isGithubActions ? (isUserSite ? '/' : `/${repository}`) : '/';
 export default defineConfig({
   site: `https://${owner}.github.io`,
   base,
+  trailingSlash: 'always',
   integrations: [
     starlight({
       plugins: [pagePlugin()],

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://grqtm.github.io/Astrophysics-Simulation-Code-Introduction/sitemap-index.xml
