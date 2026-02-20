@@ -98,32 +98,57 @@ const localeOptions = Object.entries(locales || {}).map(([locale, localeConfig])
 }
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const languageButton = document.querySelector('.page-language-select-button');
-    const languageDropdown = document.querySelector('.page-language-dropdown');
-    if (!languageButton || !languageDropdown) return;
+  const languageSelectInitKey = '__pageLanguageSelectDelegated';
 
-    languageButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      languageDropdown.classList.toggle('open');
-    });
+  if (!window[languageSelectInitKey]) {
+    const closeAllLanguageDropdowns = () => {
+      document
+        .querySelectorAll('.page-language-dropdown.open')
+        .forEach((dropdown) => dropdown.classList.remove('open'));
+    };
 
-    document.addEventListener('click', () => {
-      languageDropdown.classList.remove('open');
-    });
-
-    languageDropdown.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
       const target = e.target;
-      if (!(target instanceof HTMLElement)) return;
+      if (!(target instanceof Element)) return;
 
       const option = target.closest('.page-language-option');
-      if (!(option instanceof HTMLElement)) return;
+      if (option instanceof HTMLElement) {
+        const href = option.dataset.href;
+        closeAllLanguageDropdowns();
+        if (href) {
+          window.location.href = href;
+        }
+        return;
+      }
 
-      const href = option.dataset.href;
-      if (!href) return;
-      window.location.href = href;
+      const toggleButton = target.closest('.page-language-select-button');
+      if (toggleButton instanceof HTMLElement) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const root = toggleButton.closest('.page-language-select');
+        const dropdown = root?.querySelector('.page-language-dropdown');
+        if (!(dropdown instanceof HTMLElement)) return;
+
+        const shouldOpen = !dropdown.classList.contains('open');
+        closeAllLanguageDropdowns();
+        if (shouldOpen) {
+          dropdown.classList.add('open');
+        }
+        return;
+      }
+
+      closeAllLanguageDropdowns();
     });
-  });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllLanguageDropdowns();
+      }
+    });
+
+    window[languageSelectInitKey] = true;
+  }
 </script>
 
 <style>

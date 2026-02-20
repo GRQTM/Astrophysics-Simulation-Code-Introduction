@@ -1,0 +1,203 @@
+---
+// @ts-expect-error - Starlight internal component type may be unavailable
+import Default from '@astrojs/starlight/components/Search.astro';
+---
+
+<button
+  aria-label="Search"
+  class="page-search-button"
+  title="Search (Ctrl+K)"
+  type="button"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.35-4.35"></path>
+  </svg>
+  <span class="sr-only">Search</span>
+</button>
+
+<Default />
+
+<style>
+  :global(site-search button[data-open-modal]),
+  :global(button[data-open-modal]),
+  :global(.sl-search-button) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: auto !important;
+    z-index: -1 !important;
+  }
+
+  .page-search-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--page-radius);
+    background: var(--page-accent-light);
+    border: none;
+    color: var(--page-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .page-search-button:hover {
+    background: var(--page-neutral-200);
+    color: var(--page-text);
+    transform: translateY(-1px);
+  }
+
+  .page-search-button:focus-visible {
+    outline: 2px solid var(--page-accent);
+    outline-offset: 2px;
+  }
+
+  .page-search-button:active {
+    transform: scale(0.95);
+  }
+
+  .page-search-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  :global([data-theme='dark']) .page-search-button:hover {
+    background: var(--page-neutral-800) !important;
+    color: var(--page-text) !important;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 768px) {
+    .page-search-button {
+      width: 40px;
+      height: 40px;
+    }
+
+    .page-search-button svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-search-button {
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      min-height: 32px !important;
+    }
+
+    .page-search-button svg {
+      width: 16px !important;
+      height: 16px !important;
+      min-width: 16px !important;
+      min-height: 16px !important;
+    }
+  }
+</style>
+
+<script>
+  const pageSearchInitKey = '__pageSearchDelegated';
+
+  function findNativeSearchButton() {
+    const selectors = [
+      'site-search button[data-open-modal]',
+      'button[data-open-modal]',
+      '.sl-search-button',
+      '[data-search-button]',
+    ];
+
+    for (const selector of selectors) {
+      const candidate = document.querySelector(selector);
+      if (!(candidate instanceof HTMLElement)) continue;
+      if (candidate.classList.contains('page-search-button')) continue;
+      return candidate;
+    }
+
+    return null;
+  }
+
+  function triggerSearch() {
+    const nativeButton = findNativeSearchButton();
+    if (nativeButton && typeof nativeButton.click === 'function') {
+      nativeButton.click();
+      return;
+    }
+
+    const dialog = document.querySelector(
+      'site-search dialog, dialog[aria-label*="Search" i], dialog[aria-label*="검색" i]'
+    );
+    if (
+      dialog instanceof HTMLDialogElement &&
+      typeof dialog.showModal === 'function' &&
+      !dialog.open
+    ) {
+      try {
+        dialog.showModal();
+        return;
+      } catch {
+        // ignore and fallback below
+      }
+    }
+
+    const isMac = navigator.platform.toUpperCase().includes('MAC');
+    const shortcut = new KeyboardEvent('keydown', {
+      key: 'k',
+      code: 'KeyK',
+      ctrlKey: !isMac,
+      metaKey: isMac,
+      bubbles: true,
+      cancelable: true,
+    });
+    window.dispatchEvent(shortcut);
+    document.dispatchEvent(shortcut);
+  }
+
+  if (!window[pageSearchInitKey]) {
+    document.addEventListener('click', (e) => {
+      const target = e.target;
+      if (!(target instanceof Element)) return;
+
+      const pageSearchButton = target.closest('.page-search-button');
+      if (!(pageSearchButton instanceof HTMLElement)) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      triggerSearch();
+    });
+
+    window[pageSearchInitKey] = true;
+  }
+</script>
