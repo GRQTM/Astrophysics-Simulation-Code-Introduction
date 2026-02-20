@@ -674,8 +674,8 @@ main:has(.hero-section) h1#_top {
   font-size: clamp(1.8rem, 4.5vw, 2.8rem) !important;
   font-weight: 780 !important;
   letter-spacing: -0.04em !important;
-  line-height: 1.2 !important;
-  margin-bottom: 1rem !important;
+  line-height: 1.28 !important;
+  margin: 0 0 1rem !important;
   background: linear-gradient(135deg, var(--page-text) 0%, var(--sidebar-accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
