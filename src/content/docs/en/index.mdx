@@ -10,37 +10,37 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 <div class="hero-section">
   <span class="hero-eyebrow">v 0.1 Foundation</span>
-  <h1 class="hero-title">Start learning astrophysical<br/>simulation from zero.</h1>
+  <h1 class="hero-title">Learn astrophysical simulation<br/>from the ground up.</h1>
   <p class="hero-subtitle">
-    This site introduces five major simulation codes — <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, <strong>Gizmo</strong>, and <strong>Ramses</strong> — in a beginner-friendly workflow.
+    A hands-on, step-by-step guide to five widely used simulation codes — <strong>Arepo</strong>, <strong>Enzo</strong>, <strong>Gadget</strong>, <strong>Gizmo</strong>, and <strong>Ramses</strong> — designed for researchers running their first simulations.
   </p>
   <div class="hero-actions">
     <a href="/en/basics/" class="hero-btn hero-btn-primary">Read the Basics</a>
-    <a href="/en/codes/arepo/quickstart/" class="hero-btn hero-btn-secondary">Start with Arepo Quickstart →</a>
+    <a href="/en/codes/arepo/quickstart/" class="hero-btn hero-btn-secondary">Start with the Arepo Quickstart →</a>
   </div>
 </div>
 
-## What you can explore
+## What's inside
 
 <CardGrid>
   <LinkCard
     title="Simulation Basics"
-    description="Understand mesh, particles, resolution, and time stepping before running codes."
+    description="Core ideas you'll need before touching any code: meshes, particles, resolution, time stepping, and more."
     href="/en/basics/"
   />
   <LinkCard
     title="Code Guides"
-    description="Each code has four chapters: Overview, Quickstart, Simulation Blueprint, and Production Run."
+    description="Each code walks through four chapters: Overview, Quickstart, Simulation Blueprint, and Production Run."
     href="/en/codes/arepo/"
   />
   <LinkCard
     title="Code Comparison"
-    description="Compare method family, strengths, and caveats side by side."
+    description="A side-by-side look at each code's method, strengths, and trade-offs."
     href="/en/compare/"
   />
   <LinkCard
     title="Glossary"
-    description="Unified terminology for key simulation concepts."
+    description="Consistent definitions for technical terms used across all guides."
     href="/en/glossary/"
   />
 </CardGrid>
@@ -51,28 +51,28 @@ import { LinkCard, CardGrid } from '@astrojs/starlight/components';
   <div class="path-step">
     <span class="step-number">1</span>
     <div class="step-content">
-      <strong>Build foundation</strong>
-      <span>Read <a href="/en/basics/">Basics</a> first to align core concepts.</span>
+      <strong>Build a solid foundation</strong>
+      <span>Start with the <a href="/en/basics/">Basics</a> to pick up the essential concepts.</span>
     </div>
   </div>
   <div class="path-step">
     <span class="step-number">2</span>
     <div class="step-content">
-      <strong>Run quickstarts</strong>
-      <span>Use <a href="/en/codes/arepo/quickstart/">Arepo</a>, <a href="/en/codes/enzo/quickstart/">Enzo</a>, <a href="/en/codes/gadget/quickstart/">Gadget</a>, <a href="/en/codes/gizmo/quickstart/">Gizmo</a>, and <a href="/en/codes/ramses/quickstart/">Ramses</a> to execute first examples.</span>
+      <strong>Run your first simulation</strong>
+      <span>Follow a Quickstart guide — <a href="/en/codes/arepo/quickstart/">Arepo</a>, <a href="/en/codes/enzo/quickstart/">Enzo</a>, <a href="/en/codes/gadget/quickstart/">Gadget</a>, <a href="/en/codes/gizmo/quickstart/">Gizmo</a>, or <a href="/en/codes/ramses/quickstart/">Ramses</a> — to get a working example end-to-end.</span>
     </div>
   </div>
   <div class="path-step">
     <span class="step-number">3</span>
     <div class="step-content">
       <strong>Design and scale up</strong>
-      <span>Move from <a href="/en/compare/">Compare</a> to each code's Blueprint and Production Run chapters.</span>
+      <span>Use the <a href="/en/compare/">Compare</a> page to choose a code, then work through its Blueprint and Production Run chapters to build larger simulations.</span>
     </div>
   </div>
 </div>
 
-## Primary goal
+## Goals for this guide
 
-- Run all examples inside a `conda` virtual environment.
-- Complete at least one code from **Quickstart → Production Run**.
-- Recommended first path: [Arepo Quickstart](/en/codes/arepo/quickstart/).
+- Get every example running cleanly inside a `conda` virtual environment.
+- Take at least one code all the way from **Quickstart to Production Run**.
+- Not sure where to begin? Start with the [Arepo Quickstart](/en/codes/arepo/quickstart/).

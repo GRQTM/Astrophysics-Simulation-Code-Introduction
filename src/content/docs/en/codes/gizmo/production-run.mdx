@@ -1,16 +1,16 @@
 ---
-title: Production Run
+title: Gizmo Production Run
 description: Operational checklist for a full GIZMO production run.
 sidebar:
   label: Production Run
-  order: 4
+  order: 7
 ---
 
 ## 1. Lock executable and config
 
 - Freeze compile options and parameter files.
 - Save source revision and dependency versions.
-- Keep production binary separate from test binaries.
+- Keep the production binary separate from test binaries.
 
 ## 2. Stage production workspace
 
@@ -35,6 +35,6 @@ srun /path/to/GIZMO params_prod.txt
 
 ## 4. Operate and audit
 
-- Monitor load balance and timestep adaptation.
+- Monitor load balance, timestep adaptation, and memory usage.
 - Verify checkpoint integrity before each continuation job.
 - Run periodic science sanity checks while jobs are active.

@@ -1,16 +1,16 @@
 ---
-title: Production Run
+title: Arepo Production Run
 description: Launch and operate a production-grade AREPO simulation.
 sidebar:
   label: Production Run
   order: 4
 ---
 
-## 1. Freeze a production configuration
+## 1. Finalize production configuration
 
-- Finalize `Config.sh` and runtime parameter file.
-- Store them together with the exact source revision used.
-- Build a dedicated production executable.
+- Lock `Config.sh` and runtime parameter files.
+- Document the exact source revision and version-control it.
+- Compile a dedicated production executable.
 
 ## 2. Stage data and scheduler job
 
@@ -33,14 +33,14 @@ cd /scratch/<project>/arepo-prod
 srun /path/to/Arepo params_prod.txt
 ```
 
-## 3. Operate safely
+## 3. Operational safety
 
-- Start with a short pilot allocation on production settings.
-- Monitor timestep behavior, memory usage, and I/O rate.
-- Enable/rehearse restart flow before long walltime chains.
+- Run a short pilot job with production parameters first.
+- Monitor timestep evolution, memory usage, and I/O throughput.
+- Verify that the restart workflow works before submitting long jobs.
 
-## 4. Post-run QA
+## 4. Post-run quality assurance
 
-- Verify global conservation metrics and expected runtime scaling.
-- Compare key diagnostics against pilot and previous baseline runs.
-- Archive executable, params, scheduler scripts, and metadata with outputs.
+- Check global conservation quantities and expected scaling behavior.
+- Compare key diagnostics against pilot and baseline runs.
+- Archive the executable, parameter files, scheduler scripts, and all outputs.

@@ -1,31 +1,31 @@
 ---
-title: Simulation Blueprint
+title: Enzo Simulation Blueprint
 description: Design a robust Enzo simulation plan before scale-up.
 sidebar:
   label: Simulation Blueprint
   order: 3
 ---
 
-## Science and diagnostics
+## Scientific objectives and diagnostics
 
-- Define one primary question and 2-3 quantitative diagnostics.
-- Specify which outputs are needed to compute those diagnostics.
-- Set acceptable numerical error levels in advance.
+- Formulate a primary research question with 2–3 quantitative diagnostics.
+- Identify the specific outputs needed to compute those diagnostics.
+- Set acceptable numerical error tolerances before running.
 
 ## AMR strategy
 
-- Choose refinement triggers (density, Jeans length, shocks, etc.).
-- Set max refinement level from target spatial scale.
-- Test refinement sensitivity with a short parameter sweep.
+- Define refinement triggers (e.g., density gradients, Jeans length, shocks).
+- Calculate the maximum refinement level from your target spatial resolution.
+- Run a brief parameter sweep to evaluate refinement sensitivity.
 
 ## Physical model scope
 
-- Start with hydro-only baseline.
-- Add gravity, cooling, chemistry, or feedback incrementally.
-- Keep a changelog mapping each module toggle to run IDs.
+- Start with a hydrodynamics-only baseline.
+- Add gravity, cooling, chemistry, or feedback modules one at a time.
+- Keep a changelog that maps each module addition to a specific run ID.
 
-## Output and storage plan
+## Output and storage management
 
-- Separate high-frequency diagnostics from heavy checkpoints.
-- Predict total file count and per-dump size.
-- Reserve archive space for restart and provenance files.
+- Separate high-frequency lightweight diagnostics from heavy snapshot checkpoints.
+- Estimate total file count and disk footprint per output.
+- Allocate archival storage for restart files and data provenance records.

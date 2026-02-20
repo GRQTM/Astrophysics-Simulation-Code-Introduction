@@ -1,25 +1,25 @@
 ---
-title: Simulation Blueprint
+title: Gadget Simulation Blueprint
 description: Define a production-ready GADGET simulation design.
 sidebar:
   label: Simulation Blueprint
-  order: 3
+  order: 5
 ---
 
-## Use-case framing
+## Define the use case
 
-- Specify whether the run is collisionless, hydro, or fully coupled.
-- List primary scientific metrics and required output products.
-- Translate target scales into particle counts and softening lengths.
+- Decide whether the run is collisionless, hydro, or fully coupled.
+- List the primary scientific metrics and required output products.
+- Translate target physical scales into particle counts and softening lengths.
 
 ## Numerical setup
 
-- Choose gravity and time-integration tolerances for target accuracy.
-- Set SPH-related parameters with at least one sensitivity test.
-- Include a small-box pilot for throughput and stability checks.
+- Choose gravity and time-integration tolerances for your target accuracy.
+- Set SPH-related parameters and run at least one sensitivity test.
+- Include a small-box pilot to check throughput and stability.
 
 ## Data and analysis plan
 
-- Define snapshot cadence from expected dynamical timescales.
-- Store lightweight monitoring channels for frequent QA.
-- Reserve space for restarts and metadata artifacts.
+- Set snapshot cadence based on expected dynamical timescales.
+- Keep lightweight monitoring channels running at higher frequency for QA.
+- Reserve storage for restart files and total expected data volume.

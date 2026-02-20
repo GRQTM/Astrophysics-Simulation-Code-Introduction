@@ -1,38 +1,160 @@
 ---
-title: Quickstart
-description: Install prerequisites and run the first AREPO example.
+title: Arepo Quickstart
+description: Official-style build and first-run path for AREPO `wave_1d`.
 sidebar:
   label: Quickstart
   order: 2
 ---
 
-## Target outcome
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-- Build an AREPO executable in your local environment.
-- Run a 1D hydro sanity case (`wave_1d`).
-- Confirm that outputs are generated without runtime errors.
+This chapter walks you through compiling AREPO and running the official `wave_1d` example to verify that your environment is set up correctly — before moving on to larger simulations.
+
+## Goal Checklist
+
+- Install the Miniforge Conda distribution for your OS.
+- Create and activate an `arepo-lab` virtual environment.
+- Compile the `Arepo` executable using your local or HPC toolchain.
+- Run the official `wave_1d` example to completion.
+- Pass the included `check.py` validation.
 
 ## Installation
 
-1. Prepare a Linux or macOS environment with C/C++ compiler, `make`, and MPI.
-2. Install required scientific libraries for your chosen setup (commonly FFTW, GSL, HDF5).
-3. Obtain the AREPO source from your licensed/authorized repository.
-4. Confirm toolchain paths in your local build configuration files.
+### 1) Install Miniforge by OS
 
-## Example run used here
+<Tabs syncKey="arepo-install-os-en-v1">
+  <TabItem label="Windows (WSL2)">
+    #### 0) Install and verify WSL2 + Ubuntu
+
+    Run PowerShell/Windows Terminal as **Administrator**:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    If `wsl --install` only prints help text, install Ubuntu explicitly:
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    If the installation stalls at `0.0%`, try:
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    Reboot if prompted, open Ubuntu, and create your Linux username/password.
+
+    #### 1) Install Miniforge (inside Ubuntu)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Install Miniforge
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 2) Create `arepo-lab`
 
 ```bash
-cd <arepo-root>
-cp examples/wave_1d/Config.sh ./Config.sh
-cp examples/wave_1d/param.txt ./param_wave_1d.txt
-make -j8
-mpirun -np 4 ./Arepo param_wave_1d.txt
+conda create -n arepo-lab -c conda-forge \
+  python=3.11 compilers make git pkg-config \
+  openmpi mpi4py gsl fftw hdf5 hwloc -y
+
+conda activate arepo-lab
+which python
+which mpicc
+echo "$CONDA_PREFIX"
 ```
 
-## Validate quickly
+AREPO requires a C11-compliant compiler, GNU Make, Python, MPI (2.0+), and GSL.
+Optional libraries like FFTW3, HDF5, and hwloc are needed only when the corresponding feature flags are enabled.
 
-- Check the run log for successful timestep advancement.
-- Confirm output snapshot files were written.
-- Plot one primitive variable (e.g., density) to verify a physically smooth profile.
+### 3) Obtain source code
 
-Use [Production Run](/en/codes/arepo/production-run/) when moving from this smoke test to a full project workflow.
+```bash
+git clone https://gitlab.mpcdf.mpg.de/vrs/arepo.git
+cd arepo
+```
+
+If the repository requires access credentials, obtain the code through your institution's approved AREPO distribution channel and continue from the source root.
+
+### 4) Set system type and compile-time config
+
+```bash
+cp Template-Makefile.systype Makefile.systype
+cp Template-Config.sh Config.sh
+```
+
+Select your `SYSTYPE` and adjust compiler/library paths to match your machine.
+
+### 5) Build and run `wave_1d`
+
+```bash
+mkdir -p ./run/examples/wave_1d
+cp -r ./examples/wave_1d/* ./run/examples/wave_1d/
+python ./run/examples/wave_1d/create.py ./run/examples/wave_1d/
+
+make CONFIG=./run/examples/wave_1d/Config.sh \
+  BUILD_DIR=./run/examples/wave_1d/build \
+  EXEC=./run/examples/wave_1d/Arepo
+
+cd ./run/examples/wave_1d/
+mpiexec -np 1 ./Arepo param.txt
+cd ../../../
+
+python ./run/examples/wave_1d/check.py ./run/examples/wave_1d/
+```
+
+The AREPO documentation specifies that 1D examples must run in serial (`-np 1`).
+
+### 6) Quick validation
+
+- `check.py` completes without failure.
+- Output files appear in the run directory.
+- No unresolved missing-library errors.
+
+## Documentation References
+
+- [AREPO User Guide: Getting started](https://arepo-code.org/wp-content/userguide/running.html)
+- [AREPO User Guide: Simulation examples](https://arepo-code.org/wp-content/userguide/simtypes.html)

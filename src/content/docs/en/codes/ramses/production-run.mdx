@@ -1,16 +1,16 @@
 ---
-title: Production Run
+title: Ramses Production Run
 description: Execute and maintain production RAMSES simulations.
 sidebar:
   label: Production Run
-  order: 4
+  order: 8
 ---
 
 ## 1. Freeze production state
 
 - Lock source revision, compile flags, and namelist files.
 - Build and archive one production executable.
-- Store environment/module versions for reproducibility.
+- Store environment/module versions for full reproducibility.
 
 ## 2. Stage run directories
 
@@ -36,5 +36,5 @@ srun <path-to-ramses-binary> <input-namelist>
 ## 4. Run operations
 
 - Monitor AMR growth, memory pressure, and I/O performance.
-- Validate checkpoint/restart chain before long run sequences.
-- Perform periodic science sanity checks during active jobs.
+- Validate the checkpoint/restart chain before long run sequences.
+- Run periodic science sanity checks during active jobs.

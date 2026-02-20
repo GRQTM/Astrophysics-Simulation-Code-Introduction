@@ -1,31 +1,31 @@
 ---
-title: Simulation Blueprint
+title: Gizmo Simulation Blueprint
 description: Structure a reliable GIZMO experiment design.
 sidebar:
   label: Simulation Blueprint
-  order: 3
+  order: 6
 ---
 
 ## Scientific scope
 
 - Declare target observables and acceptable error margins.
-- Decide whether MFM or MFV is the primary hydro mode.
-- Define mandatory diagnostics before launch.
+- Decide whether MFM or MFV will be the primary hydro mode.
+- Define the diagnostics you must monitor before launch.
 
 ## Model assembly
 
-- Start from gravity + hydro baseline.
-- Add cooling, star formation, feedback, or MHD incrementally.
-- Record each configuration in a run registry.
+- Start from a gravity + hydro baseline.
+- Add cooling, star formation, feedback, or MHD one module at a time.
+- Record each configuration in a run registry for reproducibility.
 
-## Resolution and cadence
+## Resolution and output cadence
 
-- Set particle mass and softening from physical objectives.
-- Schedule snapshots by dynamical timescale.
-- Keep high-frequency lightweight diagnostics for QA.
+- Set particle mass and softening length based on your physical objectives.
+- Schedule snapshot outputs by dynamical timescale.
+- Keep high-frequency lightweight diagnostics running separately for QA.
 
 ## Pre-flight checks
 
-- Complete a short convergence-oriented pilot.
-- Validate restart behavior and output compatibility.
-- Estimate full campaign walltime and storage footprint.
+- Complete a short convergence-oriented pilot run.
+- Validate restart behavior and output format compatibility.
+- Estimate full campaign walltime and storage needs.

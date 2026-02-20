@@ -1,36 +1,169 @@
 ---
-title: Quickstart
-description: RAMSES 설치 후 첫 AMR 테스트 실행.
+title: Ramses Quickstart
+description: 처음 설치부터 Conda 가상환경으로 RAMSES 1D 테스트를 실행하는 가이드.
 sidebar:
   label: Quickstart
-  order: 2
+  order: 6
 ---
 
-## Target outcome
+import { Aside, TabItem, Tabs } from '@astrojs/starlight/components';
 
-- RAMSES 실행 파일을 빌드합니다.
-- 소규모 AMR 유체 테스트를 실행합니다.
-- 출력 파일과 실행 안정성을 확인합니다.
+이 챕터에서는 아무것도 설치되어 있지 않은 상태에서 시작해, Conda 가상환경 기반으로 RAMSES 1D hydro 테스트를 빌드하고 실행해 봅니다.
+
+## 목표 체크리스트
+
+- OS에 맞게 Conda(Miniforge)를 설치합니다.
+- `ramses-lab` 가상환경에서 Fortran 빌드 도구를 준비합니다.
+- `ramses1d`를 빌드하고 `tube1d.nml`을 실행합니다.
 
 ## Installation
 
-1. RAMSES 공식 저장소를 클론합니다.
-2. 플랫폼에 맞는 컴파일러/MPI/HDF5 환경을 구성합니다.
-3. 현재 릴리스/브랜치의 사용자 가이드 절차로 빌드합니다.
-4. 초기에는 최소 설정으로 시작한 뒤 모듈을 확장합니다.
+<Tabs syncKey="ramses-conda-install-os-ko-v2">
+  <TabItem label="Windows (WSL2)">
+    #### 0) WSL2 + Ubuntu 설치/검증
 
-## Example run used here
+    먼저 PowerShell/Windows Terminal을 **관리자 권한**으로 실행하세요.
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    `wsl --install`이 도움말만 출력되면 아래를 실행하세요.
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    설치가 `0.0%`에서 멈추면 아래를 시도하세요.
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    재부팅 후 Ubuntu를 열어 Linux 사용자 계정을 만든 뒤 설치를 계속하세요.
+
+    #### 1) Miniforge 설치 (Ubuntu 터미널)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Miniforge 설치
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    #### 0) Miniforge 설치
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 1) `ramses-lab` 가상환경 생성
 
 ```bash
-git clone https://github.com/ramses-organisation/ramses.git
-cd ramses
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j8
-mpirun -np 4 <path-to-ramses-binary> <input-namelist>
+conda create -n ramses-lab -c conda-forge \
+  python=3.11 compilers make cmake git -y
+
+conda activate ramses-lab
+which gfortran
+echo "$CONDA_PREFIX"
 ```
 
-## 빠른 검증
+<Aside type="tip" title="처음에는 1D 테스트부터">
+RAMSES는 기능이 많기 때문에, 1D hydro 테스트를 먼저 성공시킨 뒤 고급 모듈을 추가하는 것이 안전합니다.
+</Aside>
 
-- AMR 레벨 진화가 기대 동작과 일치하는지 확인합니다.
-- 스냅샷/체크포인트 파일 생성을 확인합니다.
-- 문서의 기준 곡선과 대표 프로파일을 비교합니다.
+나중에 MPI/HDF5 빌드가 필요하면 아래를 추가 설치하세요.
+
+```bash
+conda install -c conda-forge openmpi mpi4py hdf5 -y
+which mpif90
+```
+
+### 2) 소스 코드 받기
+
+```bash
+cd ~
+git clone https://github.com/ramses-organisation/ramses.git
+cd ramses
+```
+
+### 3) `bin/Makefile` 최소 설정
+
+```bash
+cd bin
+```
+
+`Makefile`에서 아래를 확인/수정하세요.
+
+- 첫 1D 테스트에서는 기본 직렬 설정(`FFLAGS`의 `-DWITHOUTMPI`)을 유지해도 됩니다.
+- 1D 테스트 설정: `NDIM=1`, `SOLVER=hydro`, `NVAR=3`
+
+MPI 병렬 실행으로 확장할 때는 `F90 = mpif90`로 바꾸고 `FFLAGS`에서 `-DWITHOUTMPI`를 제거하세요.
+
+### 4) 빌드
+
+```bash
+make clean
+make
+```
+
+빌드가 완료되면 `bin/ramses1d`가 생성됩니다.
+
+### 5) 1D 테스트 실행
+
+```bash
+cd ..
+bin/ramses1d namelist/tube1d.nml
+```
+
+로그 파일로 저장하려면:
+
+```bash
+bin/ramses1d namelist/tube1d.nml > tube.log
+```
+
+### 6) 빠른 검증
+
+- 실행 출력이 정상 진행되고 마지막에 `Run completed`가 나타납니다.
+- 출력 파일이 생성됩니다.
+- 런타임 라이브러리 오류가 없으면 환경 검증이 완료된 것입니다.
+
+## 공식 빌드 참조
+
+- [RAMSES docs: Getting started](https://ramses-organisation.readthedocs.io/en/latest/wiki/Start.html)
+- [RAMSES docs root](https://ramses-organisation.readthedocs.io/en/latest/)

@@ -1,35 +1,165 @@
 ---
-title: Quickstart
-description: Build GADGET and complete a first validation run.
+title: Gadget Quickstart
+description: Start-from-zero setup to run a GADGET-4 example inside a Conda environment.
 sidebar:
   label: Quickstart
-  order: 2
+  order: 4
 ---
 
-## Target outcome
+import { Aside, TabItem, Tabs } from '@astrojs/starlight/components';
 
-- Compile a runnable GADGET executable.
-- Execute a small hydro or gravity example.
-- Check output integrity and runtime stability.
+This chapter starts from a fresh machine and walks through a full Conda-based first run of GADGET-4.
+
+## Goal Checklist
+
+- Install Conda for your OS (Miniforge).
+- Create and activate a `gadget-lab` environment.
+- Build and run a documented GADGET-4 example (`DM-L50-N128`).
 
 ## Installation
 
-1. Prepare compiler + MPI + FFTW/HDF5 stack per official instructions.
-2. Download/extract the GADGET source package allowed for your use case.
-3. Configure build options (`Config.sh` or equivalent) for a minimal test.
-4. Build with parallel make.
+<Tabs syncKey="gadget-conda-install-os-en-v2">
+  <TabItem label="Windows (WSL2)">
+    #### 0) Install and verify WSL2 + Ubuntu
 
-## Example run used here
+    Run PowerShell/Windows Terminal as **Administrator** first.
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    If `wsl --install` only prints help text:
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    If installation stalls at `0.0%`:
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    Reboot if prompted, then open Ubuntu and create your Linux username/password.
+
+    #### 1) Install Miniforge (inside Ubuntu)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Install Miniforge
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    #### 0) Install Miniforge
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 1) Create `gadget-lab`
 
 ```bash
-cd <gadget-root>
-cp examples/<test-case>/Config.sh ./Config.sh
-make -j8
-mpirun -np 4 ./Gadget4 examples/<test-case>/param.txt
+conda create -n gadget-lab -c conda-forge \
+  python=3.11 compilers make cmake git pkg-config \
+  openmpi mpi4py gsl fftw hdf5 hwloc -y
+
+conda activate gadget-lab
+which python
+which mpicc
+which mpicxx
+echo "$CONDA_PREFIX"
 ```
 
-## Validate quickly
+<Aside type="tip" title="Keep one consistent environment">
+Run all build and runtime commands below from the same activated `gadget-lab` shell.
+</Aside>
 
-- Ensure the run exits normally and writes expected snapshots.
-- Check log-reported conserved quantities for obvious drift.
-- Plot one diagnostic profile to confirm non-pathological behavior.
+### 2) Get source code
+
+```bash
+cd ~
+git clone https://gitlab.mpcdf.mpg.de/vrs/gadget4.git
+cd gadget4
+```
+
+If direct clone access is restricted, use your approved mirror/distribution and continue from the source root.
+
+### 3) Prepare build config files
+
+```bash
+cp Template-Makefile.systype Makefile.systype
+cp Template-Config.sh Config.sh
+```
+
+- Choose your `SYSTYPE` in `Makefile.systype`.
+- Point compiler/library include and lib paths to `${CONDA_PREFIX}`.
+
+### 4) Build an official example
+
+```bash
+make DIR=examples/DM-L50-N128
+```
+
+If include/link paths are not found, export paths and rebuild:
+
+```bash
+export CPATH="$CONDA_PREFIX/include:${CPATH:-}"
+export LIBRARY_PATH="$CONDA_PREFIX/lib:${LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
+make DIR=examples/DM-L50-N128
+```
+
+### 5) Run the example
+
+```bash
+cd examples/DM-L50-N128
+mpiexec -np 4 ./Gadget4 param.txt
+```
+
+### 6) Quick validation
+
+- Timesteps advance and the run exits normally.
+- Output snapshots/log files are created.
+- No unresolved MPI/FFTW/HDF5 runtime link errors.
+
+## Official Build References
+
+- [GADGET-4 manual: Compilation and basic usage](https://wwwmpa.mpa-garching.mpg.de/gadget4/02_running/)
+- [GADGET-4 manual: Example setups](https://wwwmpa.mpa-garching.mpg.de/gadget4/10_examples/)
+- [GADGET-4 official page](https://wwwmpa.mpa-garching.mpg.de/gadget4/)

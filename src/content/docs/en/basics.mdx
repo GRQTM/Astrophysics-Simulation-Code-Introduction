@@ -5,48 +5,47 @@ sidebar:
   order: 1
 ---
 
-# Basics before touching any simulation code
+# Essential Concepts Before You Start
 
-This page is for absolute beginners who feel lost when they open code docs.
-If you understand the flow and terms below, you can read setup guides with much less friction.
+A quick overview of the ideas that underpin every simulation code in this guide. Knowing these will make setting up your first run much easier.
 
-## What this page helps you do
+## What you'll gain
 
-- Understand what a simulation run is actually doing.
-- Know which settings matter most for your first run.
-- Avoid common beginner mistakes (wrong units, over-large first run, no validation step).
+- A working mental model of what a simulation actually does under the hood.
+- Clarity on which settings matter most for a first attempt.
+- Awareness of common beginner mistakes — wrong units, overly ambitious runs, skipping validation.
 
-## Core concepts you must know first
+## Core Concepts
 
-- **Hydrodynamics + gravity**: Most galaxy/cosmology runs evolve gas dynamics and gravity together.
-- **Discretization**: Continuous equations are represented on mesh cells or particles.
-- **Resolution**: Higher detail increases runtime and memory cost rapidly.
-- **Timestep control**: Stability limits (for example CFL-like constraints) decide how fast you can advance.
-- **Initial conditions**: Bad initial files can make a run fail even when compilation is correct.
-- **Boundary conditions**: Periodic vs isolated boundaries can change behavior significantly.
-- **Subgrid models**: Star formation/feedback/cooling recipes are approximations below resolved scales.
-- **Convergence testing**: A single run is never enough; you need at least a small resolution comparison.
+- **Hydrodynamics + Gravity**: Most cosmological simulations compute how gas flows and pulls on itself through gravity at the same time.
+- **Discretization**: Computers cannot model a continuous universe directly, so the domain is broken into grid cells or particles.
+- **Resolution**: Finer detail demands more memory and compute time — often by a large factor.
+- **Timestep Control**: The simulation advances in small time increments. Rules like the CFL condition keep those steps small enough for numerical stability.
+- **Initial Conditions**: Even a flawless code will produce nonsense if the starting data is wrong.
+- **Boundary Conditions**: Is the simulation volume periodic (repeating) or isolated (a single object in empty space)? The choice fundamentally changes the physics.
+- **Subgrid Models**: Approximate recipes for processes that happen below the resolution limit — star formation, radiative cooling, feedback, etc.
+- **Convergence Testing**: A single run is never enough. Results should be compared across different resolutions to confirm they are trustworthy.
 
-## Beginner checklist before first serious run
+## Pre-Run Checklist
 
-1. Write one sentence for your goal. Example: "I want to verify that the solver runs and passes the bundled check script." 
-2. Start from the smallest official example, not a full science setup.
-3. Confirm output files are being created where you expect.
-4. Read runtime logs and look for warnings, not only crashes.
-5. Run the provided validation/check script when available.
-6. Change one parameter at a time, then rerun.
+1. **Set a clear, limited goal**: For example — "Run the provided test case and confirm the check script reports Pass."
+2. **Start small**: Use the simplest official example. Don't attempt a full galaxy simulation on day one.
+3. **Check the outputs**: Make sure files actually appear where they should.
+4. **Read the logs**: Look beyond crash messages — warnings often contain useful hints.
+5. **Validate**: If the code ships a check script, run it.
+6. **Change one thing at a time**: Modify a single parameter per re-run so you can isolate effects.
 
-## How to read code docs efficiently
+## How to Read Documentation Efficiently
 
-1. Read **Getting Started / Running** first.
-2. Read the example directory you will execute.
-3. Read required config/parameter sections only for that example.
-4. Read method papers after your first successful run.
+1. Jump to the **Getting Started** or **Running** section first.
+2. Locate the example folder you plan to run.
+3. Only look up parameters that your chosen example actually uses.
+4. Save the detailed method papers for after you have a test run working.
 
-This order reduces context overload and helps you build confidence quickly.
+Following this order will keep you from getting lost in documentation overload.
 
-## Suggested path in this site
+## Recommended Learning Path
 
-1. Start with [Arepo](/en/codes/arepo/) and complete one validated example run.
-2. Use [Compare](/en/compare/) to understand method-family trade-offs.
-3. Use [Glossary](/en/glossary/) when terms become unclear.
+1. Run and validate a basic example in [Arepo](/en/codes/arepo/).
+2. Browse the [Compare](/en/compare/) page to see how different codes approach the same problems.
+3. Keep the [Glossary](/en/glossary/) handy whenever you hit an unfamiliar term.

@@ -5,20 +5,20 @@ sidebar:
   order: 4
 ---
 
-# Core simulation glossary
+# Glossary
 
-Use one preferred translation per source term to keep multilingual pages consistent.
+Key terms used throughout this guide. We keep definitions consistent across all code pages so you can switch between them without confusion.
+
+## Conventions
+
+- The **English term** is the primary reference for all definitions.
+- Terms like **AMR**, **SPH**, and **Hydrodynamics** carry the same meaning whether you are reading about Arepo or Gadget.
 
 ## Terms
 
-- **Hydrodynamics**: numerical treatment of fluid motion, shocks, and mixing.
-- **N-body**: time evolution of many gravitationally interacting particles.
-- **AMR (Adaptive Mesh Refinement)**: selective local grid refinement.
-- **SPH (Smoothed Particle Hydrodynamics)**: particle-based fluid model using kernel-weighted neighbors.
-- **Resolution**: smallest scale represented numerically.
-- **Initial conditions**: starting state that strongly constrains later outcomes.
-
-## Policy
-
-- English term is the source-of-truth key.
-- Korean and future locales map translations to that same key.
+- **Hydrodynamics**: The numerical treatment of fluid motion — how gas flows, collides, and forms shocks in a simulation.
+- **N-body**: Computing the gravitational interaction among many discrete particles, such as dark matter halos or stellar populations.
+- **AMR (Adaptive Mesh Refinement)**: A grid technique that automatically adds finer cells only where needed (e.g., near shocks or dense regions), saving compute resources elsewhere.
+- **SPH (Smoothed Particle Hydrodynamics)**: A particle-based method for simulating fluids. Instead of a fixed grid, moving particles carry fluid properties and interact through smoothing kernels.
+- **Resolution**: The smallest spatial or mass scale a simulation can resolve. Higher resolution yields more detail but at significantly greater computational cost.
+- **Initial Conditions (IC)**: The starting state of the simulation — positions, velocities, densities, etc. Incorrect ICs will invalidate results regardless of code quality.

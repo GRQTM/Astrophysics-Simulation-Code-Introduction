@@ -91,7 +91,7 @@ html body .page-main-container .page-sidebar-container {
 }
 
 .page-code-sidebar-title {
-  font-size: 0.84rem !important;
+  font-size: 0.96rem !important;
   font-weight: 700 !important;
   letter-spacing: 0 !important;
   text-transform: capitalize !important;
@@ -233,6 +233,11 @@ html body .page-main-container .page-sidebar-container {
   width: 100% !important;
 }
 
+/* Add breathing room between page title panel and first section heading/content. */
+.page-content .sl-markdown-content > :first-child {
+  margin-top: 1.25rem !important;
+}
+
 /* Desktop layout tuning:
    - Narrower right TOC to give more room to main content
    - Left sidebar as a shorter floating panel, slightly above center */
@@ -258,7 +263,20 @@ html body .page-main-container .page-sidebar-container {
 
 /* Give h3 subsections extra breathing room after h2 sections (e.g., Installation -> 0) Install Conda). */
 .page-content .sl-markdown-content .sl-heading-wrapper.level-h2+.sl-heading-wrapper.level-h3 {
-  margin-top: 1.6rem !important;
+  margin-top: 1.85rem !important;
+}
+
+/* Section spacing polish for all code detail pages (Quickstart/Blueprint/Production). */
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h2 {
+  margin-top: 2.05rem !important;
+}
+
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h3 {
+  margin-top: 1.35rem !important;
+}
+
+.page-content .sl-markdown-content .sl-heading-wrapper.level-h2+* {
+  margin-top: 0.85rem !important;
 }
 
 /* Tabs redesign: make OS choices feel clearly selectable and less flat. */

@@ -1,18 +1,18 @@
 ---
-title: Production Run
+title: Enzo Production Run
 description: Enzo 본실행 운영 절차.
 sidebar:
   label: Production Run
   order: 4
 ---
 
-## 1. 본실행 입력 고정
+## 1. 본실행 환경 확정
 
-- 파라미터 파일과 refinement 설정을 최종 고정합니다.
-- 소스 리비전과 컴파일러/MPI 버전을 기록합니다.
-- 개발용과 분리된 본실행 실행 파일을 만듭니다.
+- 파라미터 파일, 세분화 기준, 모듈 설정을 최종 고정합니다.
+- 소스 리비전, 컴파일러, MPI 버전을 기록합니다.
+- 개발용과 분리된 본실행 전용 바이너리를 빌드합니다.
 
-## 2. 런 디렉토리 준비
+## 2. 작업 디렉터리 구성
 
 ```bash
 mkdir -p /scratch/<project>/enzo-prod/{input,output,logs,restart}
@@ -33,8 +33,8 @@ cd /scratch/<project>/enzo-prod
 srun <path-to-enzo-binary> input/<parameter-file>
 ```
 
-## 4. 운영 점검
+## 4. 모니터링 및 품질 확인
 
-- AMR 레벨 증가, 랭크당 메모리, I/O를 모니터링합니다.
-- 체크포인트/재시작을 조기에 검증합니다.
-- 주요 출력 블록마다 과학적 sanity check를 수행합니다.
+- AMR 레벨 변화, 랭크별 메모리 사용량, I/O 처리량을 관찰합니다.
+- 장기 작업을 제출하기 전에 체크포인트와 재시작이 정상인지 확인합니다.
+- 주요 출력마다 핵심 물리량에 대한 sanity check를 수행합니다.

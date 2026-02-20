@@ -5,19 +5,23 @@ sidebar:
   order: 3
 ---
 
-# Side-by-side code comparison
+# Compare Simulation Codes
 
-This table is intentionally compact for beginners.
+Not sure which code to try first? This table summarizes the key differences so you can make a practical choice.
 
-| Code | Method family | Typical strength | Potential caveat |
+## Quick Comparison
+
+| Code | Method | Key Strength | Trade-off |
 | --- | --- | --- | --- |
-| Arepo | Moving-mesh finite-volume | Interface tracking + adaptivity | Broad configuration space |
-| Enzo | Eulerian AMR grid | Explicit refinement control | Refinement strategy sensitivity |
-| Gadget | TreePM + SPH family | Mature cosmological particle workflows | SPH parameter dependence |
-| Gizmo | Mesh-free finite-mass/volume | Lagrangian adaptivity with modern hydro modes | Mode/parameter tuning overhead |
-| Ramses | Eulerian AMR finite-volume | Strong AMR-based multiphysics workflows | AMR criteria and runtime tuning complexity |
+| Arepo | Moving-mesh | Precisely tracks gas flow and morphology using a Voronoi mesh that moves with the gas. | Initial configuration can be complex. |
+| Enzo | Eulerian AMR | Captures sharp shocks cleanly and refines specific regions on demand. | Less naturally suited for tracking fast-moving gas clumps. |
+| Gadget | SPH | Robust, handles voids efficiently, and has the largest user community. | Shock resolution is softer compared to mesh-based codes. |
+| Gizmo | Mesh-free (MFM/MFV) | Combines the advantages of SPH and grid methods for high accuracy. | Parameter setup can require careful initial tuning. |
+| Ramses | Eulerian AMR | Excellent scaling on large HPC clusters; very fast for big volumes. | Output datasets can become large and require managed storage. |
 
-## Code pages
+> **Practical tip:** You don't need to find the "perfect" code on day one. Start with the code your lab already uses, or whichever Quickstart is easiest to set up on your machine.
+
+## Detailed Documentation
 
 - [Arepo](/en/codes/arepo/)
 - [Enzo](/en/codes/enzo/)

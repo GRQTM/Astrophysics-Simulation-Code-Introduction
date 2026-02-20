@@ -1,37 +1,153 @@
 ---
-title: Quickstart
-description: Prepare Enzo and run the first AMR hydro example.
+title: Enzo Quickstart
+description: Official quick build/run flow for Enzo from source.
 sidebar:
   label: Quickstart
   order: 2
 ---
 
-## Target outcome
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-- Build a working Enzo executable.
-- Run the 1D Sod shock-tube example.
-- Confirm outputs and basic AMR behavior.
+This chapter walks you through building Enzo from source and running one documented test problem to verify your environment.
+
+## Goal Checklist
+
+- Install Conda for your OS (Miniforge).
+- Create and activate an `enzo-lab` environment.
+- Build `enzo.exe` from `enzo-dev`.
+- Run a documented Enzo test problem.
+- Confirm outputs are generated without build/runtime mismatches.
 
 ## Installation
 
-1. Clone `enzo-dev` and review the official build prerequisites.
-2. Install compiler/MPI/HDF5 toolchain required by your platform.
-3. Build Enzo following the documentation for your machine profile.
-4. Locate the final Enzo binary path for test execution.
+### 1) Install Miniforge by OS
 
-## Example run used here
+<Tabs syncKey="enzo-install-os-en-v1">
+  <TabItem label="Windows (WSL2)">
+    #### 0) Install and verify WSL2 + Ubuntu
+
+    Run PowerShell/Windows Terminal as **Administrator**:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    If `wsl --install` only prints help text:
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    If installation stalls at `0.0%`:
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    Reboot if needed, launch Ubuntu, then create your Linux username/password.
+
+    #### 1) Install Miniforge (inside Ubuntu)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Install Miniforge
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 2) Create `enzo-lab`
+
+```bash
+conda create -n enzo-lab -c conda-forge \
+  python=3.11 compilers make git \
+  openmpi mpi4py hdf5 zlib -y
+
+conda activate enzo-lab
+which python
+which gfortran
+which mpicc
+echo "$CONDA_PREFIX"
+```
+
+Enzo requires POSIX + C/C++ + Fortran + HDF5, plus MPI for parallel runs.
+Some environments with newer HDF5 may require the `-DH5_USE_16_API` flag.
+
+### 3) Get source and initialize build system
 
 ```bash
 git clone https://github.com/enzo-project/enzo-dev.git
-cd enzo-dev/run/Hydro/Hydro-1D/SodShockTube
-# generate/confirm inputs as documented for this example
-mpirun -np 4 <path-to-enzo-binary> <sod-parameter-file>
+cd enzo-dev
+./configure
 ```
 
-## Validate quickly
+### 4) Select machine config and build
 
-- Verify the run reaches completion without AMR crashes.
-- Inspect output dumps for shock/contact structure.
-- Compare against reference profile from the example notes.
+```bash
+cd src/enzo
+ls Make.mach.*
+make machine-<your-machine>
+make show-config
+make
+```
 
-Move to [Production Run](/en/codes/enzo/production-run/) once this pipeline is reproducible.
+If compilation succeeds, `enzo.exe` is created in `src/enzo`.
+
+### 5) Run a documented test problem
+
+```bash
+cp enzo.exe ../../run/Hydro/Hydro-3D/CollapseTestNonCosmological
+cd ../../run/Hydro/Hydro-3D/CollapseTestNonCosmological
+./enzo.exe -d CollapseTestNonCosmological.enzo
+```
+
+Depending on your system, you may need to launch via `mpirun`/`mpiexec` or a scheduler wrapper.
+
+### 6) Quick validation
+
+- The run progresses and creates expected output directories/files.
+- No missing HDF5/MPI link errors remain.
+- `make show-config` output matches your intended precision and options.
+
+## Official Build References
+
+- [Enzo User Guide: Obtaining and Building Enzo](https://enzo.readthedocs.io/en/latest/user_guide/building_enzo.html)
+- [Enzo User Guide: Quickstart Guide to Enzo](https://enzo.readthedocs.io/en/latest/user_guide/bootcamp.html)

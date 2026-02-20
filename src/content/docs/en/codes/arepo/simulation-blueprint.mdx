@@ -1,37 +1,37 @@
 ---
-title: Simulation Blueprint
+title: Arepo Simulation Blueprint
 description: Plan an AREPO simulation before production launch.
 sidebar:
   label: Simulation Blueprint
   order: 3
 ---
 
-## Problem definition
+## Define your scientific question
 
-- Write a one-sentence scientific objective.
-- Define measurable diagnostics tied to that objective.
-- Set success criteria before spending compute budget.
+- State a single, clear scientific objective for this simulation.
+- Identify 2–3 quantitative diagnostics that will tell you whether the objective is met.
+- Set explicit success criteria before allocating compute resources.
 
-## Physics and modules
+## Choose physics and modules
 
-- Start from minimal gravity + hydro.
-- Add modules (cooling, MHD, RT, feedback) one at a time.
-- Track each module change in a run manifest.
+- Start with a minimal configuration — gravity + hydrodynamics only.
+- Add additional modules (cooling, MHD, RT, feedback) one at a time.
+- Record every module change in a run manifest so each configuration is reproducible.
 
-## Domain and resolution
+## Set up domain and resolution
 
-- Choose box/domain size from target physical scales.
-- Set mass/spatial resolution based on required observables.
-- Plan at least one lower-resolution pilot for convergence checks.
+- Size the simulation box to match the physical scales you care about.
+- Choose mass and spatial resolutions based on what you need to measure.
+- Run at least one lower-resolution pilot to check numerical convergence.
 
-## Initial conditions and outputs
+## Prepare initial conditions and outputs
 
-- Version initial condition files and generation scripts.
-- Define snapshot cadence and lightweight diagnostic cadence separately.
-- Reserve enough storage for snapshots + logs + restart files.
+- Version-control your IC generation scripts and the resulting IC files.
+- Configure heavy snapshots and lightweight diagnostics on separate output schedules.
+- Make sure you have enough storage allocated for snapshots, logs, and restart files.
 
 ## Pre-production checklist
 
-- Parameters reviewed by at least one collaborator.
-- Test run completed and restart tested.
-- Walltime and node count estimated from pilot profiling.
+- Have a colleague review all runtime parameters.
+- Verify that a test run completes and restarts cleanly.
+- Estimate walltime and node requirements from pilot profiling data.

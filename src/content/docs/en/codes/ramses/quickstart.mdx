@@ -1,36 +1,169 @@
 ---
-title: Quickstart
-description: Set up RAMSES and run a first AMR test problem.
+title: Ramses Quickstart
+description: Start-from-zero setup to run the RAMSES 1D test inside a Conda environment.
 sidebar:
   label: Quickstart
-  order: 2
+  order: 6
 ---
 
-## Target outcome
+import { Aside, TabItem, Tabs } from '@astrojs/starlight/components';
 
-- Build a RAMSES executable.
-- Run one small AMR hydro validation case.
-- Confirm expected output files and stable execution.
+This chapter walks first-time users through a full Conda-based RAMSES setup, ending with a successful 1D hydro test.
+
+## Goal Checklist
+
+- Install Conda for your OS (Miniforge).
+- Create and activate a `ramses-lab` environment.
+- Build `ramses1d` and run `tube1d.nml` successfully.
 
 ## Installation
 
-1. Clone the official RAMSES repository.
-2. Install compiler + MPI + HDF5 environment for your platform.
-3. Follow the current user-guide build path for your branch/release.
-4. Keep a minimal first-run configuration before enabling extra modules.
+<Tabs syncKey="ramses-conda-install-os-en-v2">
+  <TabItem label="Windows (WSL2)">
+    #### 0) Install and verify WSL2 + Ubuntu
 
-## Example run used here
+    Run PowerShell/Windows Terminal as **Administrator** first.
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    If `wsl --install` only prints help text:
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    If installation stalls at `0.0%`:
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    Reboot if prompted, then open Ubuntu and create your Linux username/password.
+
+    #### 1) Install Miniforge (inside Ubuntu)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Install Miniforge
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    #### 0) Install Miniforge
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 1) Create `ramses-lab`
 
 ```bash
-git clone https://github.com/ramses-organisation/ramses.git
-cd ramses
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j8
-mpirun -np 4 <path-to-ramses-binary> <input-namelist>
+conda create -n ramses-lab -c conda-forge \
+  python=3.11 compilers make cmake git -y
+
+conda activate ramses-lab
+which gfortran
+echo "$CONDA_PREFIX"
 ```
 
-## Validate quickly
+<Aside type="tip" title="Start from the minimal 1D hydro case">
+Get one clean 1D run first, then add higher-dimensional setups and advanced modules.
+</Aside>
 
-- Check AMR level evolution for the expected test behavior.
-- Confirm snapshots/checkpoints are written as planned.
-- Compare one profile with reference curves from documentation.
+If you later need MPI/HDF5-enabled builds, add:
+
+```bash
+conda install -c conda-forge openmpi mpi4py hdf5 -y
+which mpif90
+```
+
+### 2) Get source code
+
+```bash
+cd ~
+git clone https://github.com/ramses-organisation/ramses.git
+cd ramses
+```
+
+### 3) Set minimal `bin/Makefile` options
+
+```bash
+cd bin
+```
+
+In `Makefile`, set/check:
+
+- For the first 1D test, keep the default serial setting (`-DWITHOUTMPI` in `FFLAGS` is fine)
+- 1D hydro startup setup: `NDIM=1`, `SOLVER=hydro`, `NVAR=3`
+
+For later MPI-parallel runs, switch to `F90 = mpif90` and remove `-DWITHOUTMPI` from `FFLAGS`.
+
+### 4) Build
+
+```bash
+make clean
+make
+```
+
+This should create `bin/ramses1d`.
+
+### 5) Run the documented startup test
+
+```bash
+cd ..
+bin/ramses1d namelist/tube1d.nml
+```
+
+Optional log capture:
+
+```bash
+bin/ramses1d namelist/tube1d.nml > tube.log
+```
+
+### 6) Quick validation
+
+- Run output progresses without fatal errors.
+- Final line includes `Run completed`.
+- Output files are generated as expected.
+
+## Official Build References
+
+- [RAMSES docs: Getting started](https://ramses-organisation.readthedocs.io/en/latest/wiki/Start.html)
+- [RAMSES docs root](https://ramses-organisation.readthedocs.io/en/latest/)

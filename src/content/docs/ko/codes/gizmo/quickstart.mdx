@@ -1,36 +1,155 @@
 ---
-title: Quickstart
-description: Gizmo 첫 hydro 테스트 실행.
+title: Gizmo Quickstart
+description: GIZMO 공개 문서 기준 기본 빌드/실행 가이드.
 sidebar:
   label: Quickstart
-  order: 2
+  order: 5
 ---
 
-## Target outcome
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-- GIZMO 실행 파일을 컴파일합니다.
-- MFM/MFV 기반 기본 hydro 예제를 실행합니다.
-- 출력 및 로그가 정상인지 확인합니다.
+이 챕터에서는 GIZMO 공개 저장소를 기준으로 빌드 환경을 구성하고, 예제를 한 번 실행해 정상 동작을 확인합니다.
+
+## 목표 체크리스트
+
+- OS에 맞게 Conda(Miniforge)를 설치합니다.
+- `gizmo-lab` 가상환경을 생성하고 활성화합니다.
+- 현재 머신에 맞는 설정으로 GIZMO를 빌드합니다.
+- 유효한 파라미터 파일로 한 번 실행합니다.
+- MPI/GSL/FFTW/HDF5 정합성 문제 없이 출력이 생성되는지 확인합니다.
 
 ## Installation
 
-1. 빌드 모드에 필요한 컴파일러/MPI/라이브러리를 준비합니다.
-2. 공개 저장소를 클론하고 빌드 문서를 확인합니다.
-3. 첫 테스트용 최소 `Config.sh`를 선택합니다.
-4. 컴파일 후 실행 파일 생성 여부를 검증합니다.
+### 1) 운영체제별 Miniforge 설치
 
-## Example run used here
+<Tabs syncKey="gizmo-install-os-ko-v1">
+  <TabItem label="Windows (WSL2)">
+    #### 0) WSL2 + Ubuntu 설치/검증
+
+    PowerShell/Windows Terminal을 **관리자 권한**으로 실행한 뒤:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    `wsl --install`이 도움말만 출력되면:
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    설치가 `0.0%`에서 멈추면:
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    재부팅 후 Ubuntu를 열어 Linux 사용자 이름/비밀번호를 생성하세요.
+
+    #### 1) Miniforge 설치(Ubuntu 터미널)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Miniforge 설치
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 2) `gizmo-lab` 가상환경 생성
+
+```bash
+conda create -n gizmo-lab -c conda-forge \
+  python=3.11 compilers make git pkg-config \
+  openmpi mpi4py gsl fftw hdf5 -y
+
+conda activate gizmo-lab
+which python
+which mpicc
+echo "$CONDA_PREFIX"
+```
+
+GIZMO의 핵심 라이브러리는 MPI, GSL, FFTW, HDF5입니다.
+FFTW3를 사용할 때는 `Config.sh`에서 `USE_FFTW3`를 활성화하세요.
+`fftw_mpi` 링크 오류가 나면 `gizmo-lab`이 활성화된 같은 셸에서 빌드 중인지 확인하세요.
+
+### 3) 소스 코드 받기
 
 ```bash
 git clone https://github.com/pfhopkins/gizmo-public.git
 cd gizmo-public
-cp <example-config> ./Config.sh
-make -j8
-mpirun -np 4 ./GIZMO <example-parameter-file>
 ```
 
-## 빠른 검증
+### 4) `Config.sh`/머신 설정 파일 준비
 
-- 로그에서 비정상 안정성 경고가 없는지 확인합니다.
-- 스냅샷/진단 파일이 정상 생성되는지 확인합니다.
-- 기준 테스트와 대표 프로파일을 비교합니다.
+GIZMO는 GADGET 계열 빌드 패턴을 사용합니다.
+
+- 컴파일 옵션: `Config.sh`
+- 시스템/라이브러리 경로: `Makefile`, `Makefile.systype`
+
+배포 버전에 따라 템플릿 파일명이 다를 수 있습니다.
+
+```bash
+# 둘 중 존재하는 템플릿을 사용하세요.
+cp Template_Config.sh Config.sh 2>/dev/null || cp Template-Config.sh Config.sh
+```
+
+그다음 `Makefile.systype`/`Makefile`에서 `SYSTYPE`, 컴파일러, 라이브러리 경로를 현재 시스템에 맞게 수정하세요.
+
+### 5) 빌드 및 실행
+
+```bash
+make
+mpirun -np 4 ./GIZMO <parameterfile>
+```
+
+`Makefile`에서 실행 파일 이름을 다르게 지정한 경우에는 해당 이름으로 실행하세요.
+
+### 6) 빠른 검증
+
+- 빌드 단계에서 MPI/GSL/FFTW/HDF5 심볼 오류가 없습니다.
+- 실행 로그/출력 파일이 정상 생성됩니다.
+- FFTW 버전 선택(`USE_FFTW3`)과 실제 링크 라이브러리가 일치합니다.
+
+## 공식 빌드 참조
+
+- [GIZMO User Guide (`gizmo_documentation.html`)](https://www.tapir.caltech.edu/~phopkins/Site/GIZMO_files/gizmo_documentation.html)
+- [GIZMO public repository README](https://github.com/pfhopkins/gizmo-public)

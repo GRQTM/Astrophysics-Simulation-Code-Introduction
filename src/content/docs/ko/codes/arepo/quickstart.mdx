@@ -1,36 +1,160 @@
 ---
-title: Quickstart
-description: AREPO 첫 예제를 위한 설치와 실행.
+title: Arepo Quickstart
+description: AREPO 공식 문서 기준 빌드 및 `wave_1d` 첫 실행 가이드.
 sidebar:
   label: Quickstart
   order: 2
 ---
 
-## Target outcome
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-- 로컬 환경에서 AREPO 실행 파일을 빌드합니다.
-- `wave_1d` 1D 유체 예제를 실행합니다.
-- 출력 파일이 정상 생성되는지 확인합니다.
+이 챕터에서는 AREPO를 컴파일하고 공식 예제 `wave_1d`를 실행해 봅니다. 대규모 시뮬레이션으로 넘어가기 전에 빌드 환경이 정상인지 확인하는 것이 목적입니다.
+
+## 목표 체크리스트
+
+- 운영 체제에 맞는 Conda 환경(Miniforge)을 설치합니다.
+- `arepo-lab` 가상 환경을 만들고 활성화합니다.
+- 로컬 머신 또는 HPC 툴체인으로 `Arepo` 실행 파일을 빌드합니다.
+- 공식 `wave_1d` 예제를 처음부터 끝까지 실행합니다.
+- 내장 `check.py` 스크립트로 결과를 검증합니다.
 
 ## Installation
 
-1. Linux/macOS 환경에서 C/C++ 컴파일러, `make`, MPI를 준비합니다.
-2. 선택한 설정에 필요한 라이브러리(예: FFTW, GSL, HDF5)를 설치합니다.
-3. 접근 가능한 AREPO 소스 저장소에서 코드를 받습니다.
-4. 로컬 빌드 설정 파일의 라이브러리 경로를 점검합니다.
+### 1) 운영체제별 Miniforge 설치
 
-## Example run used here
+<Tabs syncKey="arepo-install-os-ko-v1">
+  <TabItem label="Windows (WSL2)">
+    #### 0) WSL2 + Ubuntu 설치/검증
+
+    PowerShell/Windows Terminal을 **관리자 권한**으로 실행한 뒤:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    `wsl --install`이 도움말만 출력하면 아래처럼 Ubuntu를 명시해 설치하세요.
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    설치가 `0.0%`에서 멈추면 다음 명령을 시도하세요.
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    재부팅이 필요하면 재부팅한 뒤 Ubuntu를 실행해 Linux 사용자 이름/비밀번호를 만드세요.
+
+    #### 1) Miniforge 설치(Ubuntu 터미널)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Miniforge 설치
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 2) `arepo-lab` 가상환경 생성
 
 ```bash
-cd <arepo-root>
-cp examples/wave_1d/Config.sh ./Config.sh
-cp examples/wave_1d/param.txt ./param_wave_1d.txt
-make -j8
-mpirun -np 4 ./Arepo param_wave_1d.txt
+conda create -n arepo-lab -c conda-forge \
+  python=3.11 compilers make git pkg-config \
+  openmpi mpi4py gsl fftw hdf5 hwloc -y
+
+conda activate arepo-lab
+which python
+which mpicc
+echo "$CONDA_PREFIX"
 ```
 
-## 빠른 검증
+AREPO의 필수 의존성은 C11 호환 컴파일러, GNU Make, Python, MPI(2.0 이상), GSL입니다.
+FFTW3, HDF5, hwloc 등은 해당 기능 플래그를 사용할 때만 필요합니다.
 
-- 로그에서 타임스텝이 정상 진행되는지 확인합니다.
-- 스냅샷 파일이 생성됐는지 확인합니다.
-- 밀도 등 기본 물리량을 간단히 플롯해 이상 여부를 봅니다.
+### 3) 소스 코드 받기
+
+```bash
+git clone https://gitlab.mpcdf.mpg.de/vrs/arepo.git
+cd arepo
+```
+
+접근 제한이 있다면, 소속 기관의 승인된 배포 경로로 소스를 받아 같은 루트 디렉터리에서 이어서 진행하세요.
+
+### 4) 빌드 설정(`SYSTYPE`, `Config.sh`) 준비
+
+```bash
+cp Template-Makefile.systype Makefile.systype
+cp Template-Config.sh Config.sh
+```
+
+`SYSTYPE`를 선택하고, 컴파일러와 라이브러리 경로를 현재 환경에 맞게 조정합니다.
+
+### 5) `wave_1d` 빌드 및 실행
+
+```bash
+mkdir -p ./run/examples/wave_1d
+cp -r ./examples/wave_1d/* ./run/examples/wave_1d/
+python ./run/examples/wave_1d/create.py ./run/examples/wave_1d/
+
+make CONFIG=./run/examples/wave_1d/Config.sh \
+  BUILD_DIR=./run/examples/wave_1d/build \
+  EXEC=./run/examples/wave_1d/Arepo
+
+cd ./run/examples/wave_1d/
+mpiexec -np 1 ./Arepo param.txt
+cd ../../../
+
+python ./run/examples/wave_1d/check.py ./run/examples/wave_1d/
+```
+
+AREPO 문서 기준으로 1D 예제는 MPI 병렬을 지원하지 않으므로 `-np 1`(단일 프로세스)로 실행해야 합니다.
+
+### 6) 빠른 검증
+
+- `check.py`가 에러 없이 종료됩니다.
+- `run/examples/wave_1d/` 아래에 출력 파일이 생성됩니다.
+- 링크/런타임 라이브러리 오류가 없습니다.
+
+## 공식 문서 참조
+
+- [AREPO User Guide: Getting started](https://arepo-code.org/wp-content/userguide/running.html)
+- [AREPO User Guide: Simulation examples](https://arepo-code.org/wp-content/userguide/simtypes.html)

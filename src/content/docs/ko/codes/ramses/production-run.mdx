@@ -1,18 +1,18 @@
 ---
-title: Production Run
+title: Ramses Production Run
 description: RAMSES 본실행 실행 및 운영 절차.
 sidebar:
   label: Production Run
-  order: 4
+  order: 8
 ---
 
-## 1. 본실행 상태 고정
+## 1. 본실행 상태 확정
 
 - 소스 리비전, 컴파일 옵션, namelist를 최종 고정합니다.
-- 본실행용 실행 파일 1개를 빌드해 보관합니다.
-- 환경/모듈 버전 정보를 함께 기록합니다.
+- 본실행용 실행 파일 하나를 빌드해 보관합니다.
+- 환경/모듈 버전 정보를 함께 기록해 재현성을 확보합니다.
 
-## 2. 런 디렉토리 준비
+## 2. 작업 디렉터리 준비
 
 ```bash
 mkdir -p /scratch/<project>/ramses-prod/{ic,output,logs,restart}
@@ -36,5 +36,5 @@ srun <path-to-ramses-binary> <input-namelist>
 ## 4. 운영 및 품질 확인
 
 - AMR 성장, 메모리 압박, I/O 성능을 모니터링합니다.
-- 체크포인트/재시작 체인을 안정적으로 운영합니다.
-- 핵심 과학 진단량을 주기적으로 검증합니다.
+- 긴 작업 시퀀스에 앞서 체크포인트/재시작 체인을 검증합니다.
+- 실행 중 주기적으로 핵심 과학 진단량을 확인합니다.

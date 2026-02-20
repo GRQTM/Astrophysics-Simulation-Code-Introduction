@@ -1,25 +1,23 @@
 ---
-title: Production Run
+title: Gadget Production Run
 description: Gadget 본실행 운영 절차.
 sidebar:
   label: Production Run
-  order: 4
+  order: 6
 ---
 
-## 1. 실행 파일/파라미터 고정
+## 1. 실행 파일 및 파라미터 확정
 
-- 컴파일 옵션과 런타임 파라미터를 최종 확정합니다.
-- 소스 리비전, 툴체인 버전, 빌드 로그를 보관합니다.
-- 캠페인 전체에서 동일한 실행 파일을 사용합니다.
+- 컴파일 옵션과 런타임 파라미터를 최종 고정합니다.
+- 소스 리비전, 툴체인 버전, 빌드 로그를 기록합니다.
+- 전체 캠페인에서 동일한 실행 파일을 사용합니다.
 
-## 2. 작업 경로 준비
+## 2. 작업 디렉터리 및 런처 준비
 
 ```bash
 mkdir -p /scratch/<project>/gadget-prod/{ic,output,logs,restart}
 cp <ic-files> /scratch/<project>/gadget-prod/ic/
 ```
-
-## 3. 스케줄러 실행
 
 ```bash
 #!/bin/bash
@@ -33,8 +31,14 @@ cd /scratch/<project>/gadget-prod
 srun /path/to/Gadget4 params_prod.txt
 ```
 
-## 4. 품질 관리
+## 3. 런타임 모니터링
 
 - 타임스텝 하한, 로드밸런스, 메모리 여유를 모니터링합니다.
-- 체크포인트 생성 및 재시작 가능 여부를 점검합니다.
-- 핵심 관측량을 파일럿/기준선과 비교합니다.
+- 체크포인트가 정상 생성되고 재시작이 가능한지 확인합니다.
+- 실행 기록을 출력 디렉터리와 같은 위치에 보관합니다.
+
+## 4. 품질 확인
+
+- 핵심 통계량을 파일럿/기준 실행 결과와 비교합니다.
+- 주요 관측량이 예상 물리 경향과 부합하는지 검증합니다.
+- 스크립트와 환경 정보를 최종 데이터와 함께 아카이브합니다.

@@ -1,36 +1,151 @@
 ---
-title: Quickstart
-description: Compile Gizmo and execute a first hydro test.
+title: Gizmo Quickstart
+description: Official-style baseline setup for GIZMO public code.
 sidebar:
   label: Quickstart
-  order: 2
+  order: 5
 ---
 
-## Target outcome
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-- Build a functional GIZMO executable.
-- Run one bundled hydro example in MFM/MFV mode.
-- Confirm stable completion and valid outputs.
+This chapter walks you through compiling and running GIZMO from the public repository to establish a clean baseline.
+
+## Goal Checklist
+
+- Install Conda for your OS (Miniforge).
+- Create and activate a `gizmo-lab` environment.
+- Build GIZMO with a machine-appropriate Makefile setup.
+- Launch one baseline run using a valid parameter file.
+- Confirm executable and runtime libraries are consistent.
 
 ## Installation
 
-1. Install compiler, MPI, and math/I/O dependencies required by your build mode.
-2. Clone the public source and inspect build documentation.
-3. Select a minimal `Config.sh` for a first hydro test.
-4. Compile and verify executable creation.
+### 1) Install Miniforge by OS
 
-## Example run used here
+<Tabs syncKey="gizmo-install-os-en-v1">
+  <TabItem label="Windows (WSL2)">
+    #### 0) Install and verify WSL2 + Ubuntu
+
+    Run PowerShell/Windows Terminal as **Administrator**:
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    If `wsl --install` only prints help:
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    If install stalls at `0.0%`:
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    Reboot if needed, then launch Ubuntu and create your Linux username/password.
+
+    #### 1) Install Miniforge (inside Ubuntu)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Install Miniforge
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 2) Create `gizmo-lab`
+
+```bash
+conda create -n gizmo-lab -c conda-forge \
+  python=3.11 compilers make git pkg-config \
+  openmpi mpi4py gsl fftw hdf5 -y
+
+conda activate gizmo-lab
+which python
+which mpicc
+echo "$CONDA_PREFIX"
+```
+
+GIZMO's core dependencies are MPI, GSL, FFTW, and HDF5.
+When using FFTW3, enable `USE_FFTW3` in `Config.sh`.
+If you see `fftw_mpi` link errors, make sure you are building from the same activated `gizmo-lab` shell.
+
+### 3) Obtain source
 
 ```bash
 git clone https://github.com/pfhopkins/gizmo-public.git
 cd gizmo-public
-cp <example-config> ./Config.sh
-make -j8
-mpirun -np 4 ./GIZMO <example-parameter-file>
 ```
 
-## Validate quickly
+### 4) Configure compile-time options and machine settings
 
-- Confirm run log progression without instability flags.
-- Check generated snapshots/diagnostics are readable.
-- Compare one profile with known test-case behavior.
+GIZMO follows the GADGET-style build pattern:
+
+- Set compile-time options in `Config.sh` (from `Template_Config.sh`)
+- Set machine/library/compiler options in `Makefile` / `Makefile.systype`
+
+```bash
+cp Template_Config.sh Config.sh 2>/dev/null || cp Template-Config.sh Config.sh
+# select/edit SYSTYPE and library paths in Makefile.systype / Makefile as needed
+```
+
+### 5) Build and run
+
+```bash
+make
+mpirun -np 4 ./GIZMO <parameterfile>
+```
+
+If your Makefile defines a different executable name, use that name instead.
+
+### 6) Quick validation
+
+- Build completes with no unresolved MPI/GSL/FFTW/HDF5 symbols.
+- Run starts and writes expected outputs/logs.
+- Runtime does not fail due to FFTW version mismatch flags.
+
+## Official Build References
+
+- [GIZMO User Guide (`gizmo_documentation.html`)](https://www.tapir.caltech.edu/~phopkins/Site/GIZMO_files/gizmo_documentation.html)
+- [GIZMO public repository README](https://github.com/pfhopkins/gizmo-public)

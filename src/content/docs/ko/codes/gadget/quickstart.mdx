@@ -1,35 +1,166 @@
 ---
-title: Quickstart
-description: Gadget 첫 실행을 위한 기본 절차.
+title: Gadget Quickstart
+description: 처음 설치부터 Conda 가상환경으로 GADGET-4 예제를 실행하는 가이드.
 sidebar:
   label: Quickstart
-  order: 2
+  order: 4
 ---
 
-## Target outcome
+import { Aside, TabItem, Tabs } from '@astrojs/starlight/components';
 
-- Gadget 실행 파일을 컴파일합니다.
-- 소규모 hydro/중력 예제를 1회 실행합니다.
-- 출력 파일과 로그 안정성을 확인합니다.
+이 챕터에서는 아무것도 설치되어 있지 않은 상태에서 시작해, Conda 가상환경 안에서 GADGET-4 예제를 빌드하고 실행해 봅니다.
+
+## 목표 체크리스트
+
+- OS에 맞게 Conda(Miniforge)를 설치합니다.
+- `gadget-lab` 가상환경에서 빌드 의존성을 준비합니다.
+- GADGET-4 예제(`DM-L50-N128`)를 빌드하고 실행합니다.
 
 ## Installation
 
-1. 공식 안내에 맞춰 컴파일러/MPI/FFTW/HDF5 환경을 준비합니다.
-2. 사용 가능한 GADGET 소스 패키지를 확보합니다.
-3. 최소 테스트용 빌드 설정을 적용합니다.
-4. 병렬 빌드 후 실행 파일 생성을 확인합니다.
+<Tabs syncKey="gadget-conda-install-os-ko-v2">
+  <TabItem label="Windows (WSL2)">
+    #### 0) WSL2 + Ubuntu 설치/검증
 
-## Example run used here
+    먼저 PowerShell/Windows Terminal을 **관리자 권한**으로 실행하세요.
+
+    ```powershell
+    wsl --install -d Ubuntu
+    wsl --set-default-version 2
+    wsl -l -v
+    ```
+
+    `wsl --install`이 도움말만 나오면 아래를 실행하세요.
+
+    ```powershell
+    wsl --list --online
+    wsl --install -d Ubuntu
+    ```
+
+    설치가 `0.0%`에서 멈추면 아래를 시도하세요.
+
+    ```powershell
+    wsl --install --web-download -d Ubuntu
+    ```
+
+    재부팅 후 Ubuntu를 열어 Linux 사용자 계정을 만든 다음 설치를 진행하세요.
+
+    #### 1) Miniforge 설치 (Ubuntu 터미널)
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+
+  <TabItem label="macOS">
+    #### 0) Miniforge 설치
+
+    ```bash
+    xcode-select --install
+
+    curl -L -o ~/miniforge.sh \
+      https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init zsh
+    ```
+  </TabItem>
+
+  <TabItem label="Linux (Ubuntu)">
+    #### 0) Miniforge 설치
+
+    ```bash
+    sudo apt update
+    sudo apt install -y curl bzip2
+
+    curl -L -o ~/miniforge.sh \
+      "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-$(uname -m).sh"
+    bash ~/miniforge.sh -b -p "$HOME/miniforge3"
+
+    source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    conda init bash
+    ```
+  </TabItem>
+</Tabs>
+
+### 1) `gadget-lab` 가상환경 생성
 
 ```bash
-cd <gadget-root>
-cp examples/<test-case>/Config.sh ./Config.sh
-make -j8
-mpirun -np 4 ./Gadget4 examples/<test-case>/param.txt
+conda create -n gadget-lab -c conda-forge \
+  python=3.11 compilers make cmake git pkg-config \
+  openmpi mpi4py gsl fftw hdf5 hwloc -y
+
+conda activate gadget-lab
+which python
+which mpicc
+which mpicxx
+echo "$CONDA_PREFIX"
 ```
 
-## 빠른 검증
+<Aside type="tip" title="중요">
+아래 모든 빌드/실행 명령은 반드시 `conda activate gadget-lab` 상태에서 수행하세요.
+</Aside>
 
-- 정상 종료 및 스냅샷 생성 여부를 확인합니다.
-- 로그의 보존량 지표에 이상치가 없는지 확인합니다.
-- 대표 물리량 1개를 플롯해 비정상 거동을 점검합니다.
+### 2) 소스 코드 받기
+
+```bash
+cd ~
+git clone https://gitlab.mpcdf.mpg.de/vrs/gadget4.git
+cd gadget4
+```
+
+접근 제한으로 `git clone`이 실패하면, 소속 기관의 공식 배포 경로로 소스를 받아 같은 위치에서 이어서 진행하세요.
+
+### 3) 빌드 설정 파일 준비
+
+```bash
+cp Template-Makefile.systype Makefile.systype
+cp Template-Config.sh Config.sh
+```
+
+- `Makefile.systype`에서 사용할 `SYSTYPE`를 선택합니다.
+- 컴파일러가 `mpicc`/`mpicxx`를 사용하도록 설정합니다.
+- GSL/FFTW/HDF5/hwloc 경로는 `${CONDA_PREFIX}/include`, `${CONDA_PREFIX}/lib`를 가리키도록 지정합니다.
+
+### 4) 공식 예제 빌드
+
+```bash
+make DIR=examples/DM-L50-N128
+```
+
+라이브러리 검색 오류가 나면 아래를 적용 후 다시 빌드하세요.
+
+```bash
+export CPATH="$CONDA_PREFIX/include:${CPATH:-}"
+export LIBRARY_PATH="$CONDA_PREFIX/lib:${LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:${LD_LIBRARY_PATH:-}"
+make DIR=examples/DM-L50-N128
+```
+
+### 5) 예제 실행
+
+```bash
+cd examples/DM-L50-N128
+mpiexec -np 4 ./Gadget4 param.txt
+```
+
+### 6) 빠른 검증
+
+- 실행 로그가 타임스텝을 진행하며 정상 종료됩니다.
+- 출력 경로에 스냅샷/로그 파일이 생성됩니다.
+- MPI/FFTW/HDF5 링크 오류가 없습니다.
+
+## 공식 빌드 참조
+
+- [GADGET-4 manual: Compilation and basic usage](https://wwwmpa.mpa-garching.mpg.de/gadget4/02_running/)
+- [GADGET-4 manual: Example setups](https://wwwmpa.mpa-garching.mpg.de/gadget4/10_examples/)
+- [GADGET-4 official page](https://wwwmpa.mpa-garching.mpg.de/gadget4/)
